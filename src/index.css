@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-anthracite bg-warm antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* Calendar day cells */
+  .cal-day {
+    @apply relative flex items-center justify-center w-full aspect-square text-sm rounded-sm cursor-default transition-colors duration-150;
+  }
+
+  .cal-day--occupied {
+    @apply bg-primary/15 text-primary-dark;
+  }
+
+  .cal-day--free {
+    @apply text-anthracite;
+  }
+
+  .cal-day--selected {
+    @apply bg-blue/15 text-blue;
+  }
+
+  .cal-day--arrival {
+    @apply bg-blue text-white rounded-l-md;
+  }
+
+  .cal-day--departure {
+    @apply bg-blue text-white rounded-r-md;
+  }
+
+  .cal-day--today {
+    @apply font-semibold;
+  }
+
+  .cal-day--past {
+    @apply text-stone;
+  }
+
+  .cal-day--disabled {
+    @apply text-stone cursor-not-allowed;
+  }
+
+  /* Dotted underline for holidays/bridge days */
+  .cal-day--special::after {
+    content: '';
+    @apply absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3/5;
+    border-bottom: 1.5px dotted #C4A94D;
+  }
+
+  /* Lightbox */
+  .lightbox-overlay {
+    @apply fixed inset-0 z-50 bg-anthracite/90 flex items-center justify-center;
+  }
+
+  /* Print styles */
+  @media print {
+    body {
+      @apply bg-white text-black;
+      font-size: 11px;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    .print-only {
+      display: block !important;
+    }
+
+    .cal-day--occupied {
+      background: #eee !important;
+      color: #333 !important;
+      border: 1px solid #999;
+    }
+
+    .cal-day--special::after {
+      border-bottom-color: #999;
+    }
+  }
+}

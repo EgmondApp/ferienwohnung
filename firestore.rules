@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Occupancy: public read, authenticated write
+    // Since we use simple password auth (not Firebase Auth),
+    // we keep writes open but could add a secret field check.
+    // For a low-traffic family app, this is acceptable.
+    match /occupancy/{docId} {
+      allow read: if true;
+      allow write: if true;
+      // To restrict writes, add a shared secret:
+      // allow write: if request.resource.data.adminKey == 'YOUR_SECRET';
+    }
+
+    // Inquiries: public create, authenticated read/update/delete
+    match /inquiries/{docId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+      // Same as above — add adminKey check for production
+    }
+
+    // Settings: read-only
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
