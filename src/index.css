@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -15,17 +20,20 @@
 
   h1, h2, h3, h4 {
     @apply font-serif;
+    text-wrap: balance;
   }
 }
 
 @layer components {
   /* Calendar day cells */
   .cal-day {
-    @apply relative flex items-center justify-center w-full aspect-square text-sm rounded-sm cursor-default transition-colors duration-150;
+    @apply relative flex items-center justify-center w-full aspect-square text-sm cursor-default transition-colors duration-150;
   }
 
   .cal-day--occupied {
-    @apply bg-primary/15 text-primary-dark;
+    background-color: rgba(167,6,5,0.14);
+    color: #A70605;
+    border-radius: 0;
   }
 
   .cal-day--free {
@@ -33,15 +41,48 @@
   }
 
   .cal-day--selected {
-    @apply bg-blue/15 text-blue;
+    background-color: rgba(5,102,168,0.12);
+    color: #0566A8;
+    border-radius: 0;
   }
 
+  /* User selection: Arrival — right half blue */
   .cal-day--arrival {
-    @apply bg-blue text-white rounded-l-md;
+    background: linear-gradient(to right, transparent 50%, #0566A8 50%) !important;
+    color: white !important;
+    border-radius: 0 !important;
+  }
+  /* User selection: Departure — left half blue */
+  .cal-day--departure {
+    background: linear-gradient(to right, #0566A8 50%, transparent 50%) !important;
+    color: white !important;
+    border-radius: 0 !important;
   }
 
-  .cal-day--departure {
-    @apply bg-blue text-white rounded-r-md;
+  /* Anreisetag: rechte Hälfte belegt, linke frei */
+  .cal-day--occ-arrival {
+    background: linear-gradient(to right, transparent 50%, rgba(167,6,5,0.14) 50%) !important;
+    color: #A70605 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Abreisetag: linke Hälfte belegt, rechte frei */
+  .cal-day--occ-departure {
+    background: linear-gradient(to right, rgba(167,6,5,0.14) 50%, transparent 50%) !important;
+    color: #A70605 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Split day: Abreise + Anreise am selben Tag → geteilter Tag, mit weißer Mittellinie */
+  .cal-day--occ-split {
+    background: linear-gradient(to right, rgba(167,6,5,0.14) calc(50% - 0.5px), white calc(50% - 0.5px), white calc(50% + 0.5px), rgba(167,6,5,0.28) calc(50% + 0.5px)) !important;
+    color: #A70605 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Weekend: subtle gray */
+  .cal-day--weekend {
+    background-color: rgba(0,0,0,0.03);
   }
 
   .cal-day--today {
@@ -56,11 +97,11 @@
     @apply text-stone cursor-not-allowed;
   }
 
-  /* Dotted underline for holidays/bridge days */
-  .cal-day--special::after {
-    content: '';
-    @apply absolute bottom-0.5 left-1/2 -translate-x-1/2 w-3/5;
-    border-bottom: 1.5px dotted #C4A94D;
+  /* Background highlight for holidays/bridge days */
+  .cal-day--special {
+    background-color: rgba(196, 169, 77, 0.28);
+    color: #8a6f1a;
+    font-weight: 500;
   }
 
   /* Lightbox */
@@ -70,9 +111,16 @@
 
   /* Print styles */
   @media print {
+    @page {
+      size: A4 landscape;
+      margin: 8mm;
+    }
+
     body {
       @apply bg-white text-black;
-      font-size: 11px;
+      font-size: 9px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
 
     .no-print {
@@ -81,16 +129,6 @@
 
     .print-only {
       display: block !important;
-    }
-
-    .cal-day--occupied {
-      background: #eee !important;
-      color: #333 !important;
-      border: 1px solid #999;
-    }
-
-    .cal-day--special::after {
-      border-bottom-color: #999;
     }
   }
 }

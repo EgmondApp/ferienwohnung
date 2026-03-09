@@ -1,59 +1,94 @@
-import { getDate, isToday, isSameDay } from 'date-fns';
-import { buildMonthGrid, getSpecialDayInfo, isOccupied } from '../../utils/calendarHelpers';
-import { isPast, WEEKDAY_HEADERS, MONTH_NAMES } from '../../utils/dateHelpers';
+// Shared month calendar grid. Used in: DatePicker, YearOverviewTile, AdminCalendar, OccupancyEditor.
+// Props: year, month, occupancy[], selectedRange, onDayClick, onOccupiedClick, compact, showGuestName, showHeading.
+// Half-days (arrival/departure/split) always route to onDayClick. Only interior occupied days use onOccupiedClick.
+// CSS state classes are defined in src/index.css (.cal-day--*).
+import { getDate, getDay, isToday, isSameDay } from 'date-fns';
+import { buildMonthGrid, getSpecialDayInfo, isOccupied, getOccupancy } from '../../utils/calendarHelpers';
+import { isPast, parseDe, WEEKDAY_HEADERS, MONTH_NAMES } from '../../utils/dateHelpers';
 
-/**
- * Renders a single month calendar grid.
- *
- * Props:
- *   year, month (0-indexed)
- *   occupancy - array of { startDate, endDate }
- *   selectedRange - { start: Date|null, end: Date|null }
- *   onDayClick - (date) => void
- *   compact - smaller sizing for overview
- */
 export default function MonthCalendar({
   year,
   month,
   occupancy = [],
   selectedRange = { start: null, end: null },
   onDayClick,
+  onOccupiedClick,
   compact = false,
+  showGuestName = false,
+  showHeading = true,
 }) {
   const weeks = buildMonthGrid(year, month);
 
+  function getEntryInfo(date) {
+    const isArrivalDay = occupancy.some((o) => isSameDay(date, parseDe(o.startDate)));
+    const isDepartureDay = occupancy.some((o) => isSameDay(date, parseDe(o.endDate)));
+    const occupied = isOccupied(date, occupancy);
+    const entry = getOccupancy(date, occupancy);
+    return {
+      occupied,
+      entry,
+      isArrival: isArrivalDay && !isDepartureDay,
+      isDeparture: isDepartureDay && !isArrivalDay,
+      isSplit: isArrivalDay && isDepartureDay,
+    };
+  }
+
+  function isWeekend(date) {
+    const dow = getDay(date); // 0=Sun, 6=Sat
+    return dow === 0 || dow === 6;
+  }
+
   function getDayClasses(date) {
     if (!date) return '';
-
     const classes = ['cal-day'];
     const past = isPast(date);
     const today = isToday(date);
-    const occupied = isOccupied(date, occupancy);
     const special = getSpecialDayInfo(date);
     const { start, end } = selectedRange;
+    const { occupied, isArrival, isDeparture, isSplit } = getEntryInfo(date);
 
     if (past) classes.push('cal-day--past');
     if (today) classes.push('cal-day--today');
+    if (isWeekend(date) && !occupied) classes.push('cal-day--weekend');
 
-    if (start && isSameDay(date, start)) {
+    const isUserArrival = start && isSameDay(date, start);
+    const isUserDeparture = end && isSameDay(date, end);
+    const isInRange = start && end && date > start && date < end;
+    const isUserSelected = isUserArrival || isUserDeparture || isInRange;
+
+    if (isUserArrival) {
       classes.push('cal-day--arrival');
-    } else if (end && isSameDay(date, end)) {
+    } else if (isUserDeparture) {
       classes.push('cal-day--departure');
-    } else if (start && end && date > start && date < end) {
+    } else if (isInRange) {
       classes.push('cal-day--selected');
     } else if (occupied) {
-      classes.push('cal-day--occupied');
+      if (isSplit) classes.push('cal-day--occ-split');
+      else if (isArrival) classes.push('cal-day--occ-arrival');
+      else if (isDeparture) classes.push('cal-day--occ-departure');
+      else classes.push('cal-day--occupied');
     } else if (!past) {
       classes.push('cal-day--free');
     }
 
-    if (special.isSpecial) {
+    // Special only when not selected/occupied
+    if (special.isSpecial && !isUserSelected && !occupied) {
       classes.push('cal-day--special');
     }
 
-    if (onDayClick && !past && !occupied) {
+    // Cursor
+    if (!past && occupied) {
+      const isHalf = isArrival || isDeparture || isSplit;
+      if (isHalf && onDayClick) {
+        classes.push('cursor-pointer hover:opacity-80');
+      } else if (onOccupiedClick) {
+        classes.push('cursor-pointer hover:opacity-70');
+      } else {
+        classes.push('cal-day--disabled');
+      }
+    } else if (!past && !occupied && onDayClick) {
       classes.push('cursor-pointer hover:bg-blue/10');
-    } else if (occupied || past) {
+    } else if (past) {
       classes.push('cal-day--disabled');
     }
 
@@ -67,16 +102,38 @@ export default function MonthCalendar({
     return '';
   }
 
+  function handleClick(date) {
+    if (!date || isPast(date)) return;
+    const { occupied, isArrival, isDeparture, isSplit } = getEntryInfo(date);
+    if (occupied) {
+      const isHalf = isArrival || isDeparture || isSplit;
+      if (isHalf && onDayClick) {
+        // An/Abreisetage sind Übergangstage → für Datumsauswahl nutzbar
+        onDayClick(date);
+      } else if (onOccupiedClick) {
+        onOccupiedClick(date);
+      }
+    } else if (onDayClick) {
+      onDayClick(date);
+    }
+  }
+
+  function getGuestFirstName(date) {
+    const { occupied, entry } = getEntryInfo(date);
+    if (!occupied || !entry?.note) return null;
+    return entry.note.split(' ')[0];
+  }
+
   const cellSize = compact ? 'text-xs' : 'text-sm';
   const headerSize = compact ? 'text-sm' : 'text-base';
 
   return (
     <div>
-      <h3 className={`font-serif ${headerSize} mb-2 text-anthracite`}>
-        {MONTH_NAMES[month]} {year}
-      </h3>
-
-      {/* Weekday headers */}
+      {showHeading && (
+        <h3 className={`font-serif ${headerSize} mb-2 text-anthracite`}>
+          {MONTH_NAMES[month]} {year}
+        </h3>
+      )}
       <div className="grid grid-cols-7 gap-px mb-1">
         {WEEKDAY_HEADERS.map((d) => (
           <div key={d} className={`text-center ${compact ? 'text-[10px]' : 'text-xs'} text-stone font-medium`}>
@@ -84,24 +141,30 @@ export default function MonthCalendar({
           </div>
         ))}
       </div>
-
-      {/* Day grid */}
-      {weeks.map((week, wi) => (
-        <div key={wi} className="grid grid-cols-7 gap-px">
-          {week.map((date, di) => (
+      <div className="grid grid-cols-7 gap-x-0 gap-y-px">
+        {weeks.flat().map((date, i) => {
+          const guestName = showGuestName && date ? getGuestFirstName(date) : null;
+          return (
             <div
-              key={di}
+              key={date ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : `e${i}`}
               className={date ? getDayClasses(date) : 'cal-day'}
               title={date ? getTooltip(date) : ''}
-              onClick={() => date && onDayClick && !isPast(date) && !isOccupied(date, occupancy) && onDayClick(date)}
+              onClick={() => handleClick(date)}
             >
               {date ? (
-                <span className={cellSize}>{getDate(date)}</span>
+                guestName ? (
+                  <div className="flex flex-col items-center leading-tight">
+                    <span className={cellSize}>{getDate(date)}</span>
+                    <span className="text-[7px] leading-none opacity-80 truncate max-w-full px-0.5">{guestName}</span>
+                  </div>
+                ) : (
+                  <span className={cellSize}>{getDate(date)}</span>
+                )
               ) : null}
             </div>
-          ))}
-        </div>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }

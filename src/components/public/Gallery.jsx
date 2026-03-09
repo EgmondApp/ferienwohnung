@@ -1,114 +1,173 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-/**
- * Image gallery with lightbox.
- * Place your images in public/images/ and list them here.
- */
-const IMAGES = [
-  { src: './images/gallery-1.jpg', alt: 'Wohnbereich' },
-  { src: './images/gallery-2.jpg', alt: 'Schlafzimmer' },
-  { src: './images/gallery-3.jpg', alt: 'Küche' },
-  { src: './images/gallery-4.jpg', alt: 'Badezimmer' },
-  { src: './images/gallery-5.jpg', alt: 'Terrasse' },
-  { src: './images/gallery-6.jpg', alt: 'Umgebung' },
-  { src: './images/gallery-7.jpg', alt: 'Garten' },
-  { src: './images/gallery-8.jpg', alt: 'Ausblick' },
+const GALLERIES = [
+  {
+    id: 'innen',
+    label: 'Innen',
+    images: [
+      { src: './images/interior-1.jpg', alt: 'Wohnbereich' },
+      { src: './images/interior-2.jpg', alt: 'Schlafzimmer' },
+      { src: './images/interior-3.jpg', alt: 'Küche' },
+      { src: './images/interior-4.jpg', alt: 'Badezimmer' },
+      { src: './images/interior-5.jpg', alt: 'Essbereich' },
+      { src: './images/interior-6.jpg', alt: 'Sitzlandschaft' },
+      { src: './images/interior-7.jpg', alt: 'Schlafzimmer 2' },
+      { src: './images/interior-8.jpg', alt: 'Detail' },
+    ],
+  },
+  {
+    id: 'aussen',
+    label: 'Außen',
+    images: [
+      { src: './images/exterior-1.jpg', alt: 'Balkon' },
+      { src: './images/exterior-2.jpg', alt: 'Terrasse' },
+      { src: './images/exterior-3.jpg', alt: 'Strand' },
+      { src: './images/exterior-4.jpg', alt: 'Dünen' },
+      { src: './images/exterior-5.jpg', alt: 'Meer' },
+      { src: './images/exterior-6.jpg', alt: 'Sonnenuntergang' },
+      { src: './images/exterior-7.jpg', alt: 'Dorf' },
+      { src: './images/exterior-8.jpg', alt: 'Umgebung' },
+    ],
+  },
 ];
 
 export default function Gallery() {
-  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [activeGallery, setActiveGallery] = useState(null);
+  const touchStartX = useRef(null);
 
-  // Close lightbox on Escape
   useEffect(() => {
+    if (!activeGallery) return;
+    document.body.style.overflow = 'hidden';
     function handleKey(e) {
-      if (e.key === 'Escape') setLightboxIndex(null);
-      if (e.key === 'ArrowRight' && lightboxIndex !== null) {
-        setLightboxIndex((i) => (i + 1) % IMAGES.length);
-      }
-      if (e.key === 'ArrowLeft' && lightboxIndex !== null) {
-        setLightboxIndex((i) => (i - 1 + IMAGES.length) % IMAGES.length);
-      }
+      const imgs = activeGallery.gallery.images;
+      if (e.key === 'Escape') setActiveGallery(null);
+      if (e.key === 'ArrowRight') setActiveGallery((a) => a ? { ...a, index: (a.index + 1) % imgs.length } : null);
+      if (e.key === 'ArrowLeft') setActiveGallery((a) => a ? { ...a, index: (a.index - 1 + imgs.length) % imgs.length } : null);
     }
     window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [lightboxIndex]);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [activeGallery]);
+
+  function handleTouchStart(e) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e) {
+    if (touchStartX.current === null || !activeGallery) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) < 40) return;
+    const imgs = activeGallery.gallery.images;
+    if (diff > 0) {
+      setActiveGallery((a) => a ? { ...a, index: (a.index + 1) % imgs.length } : null);
+    } else {
+      setActiveGallery((a) => a ? { ...a, index: (a.index - 1 + imgs.length) % imgs.length } : null);
+    }
+    touchStartX.current = null;
+  }
 
   return (
-    <section id="galerie" className="px-6 py-16 md:px-12 lg:px-20 max-w-7xl mx-auto">
-      <h2 className="font-serif text-2xl md:text-3xl text-anthracite mb-8">Eindrücke</h2>
+    <section id="galerie" className="px-6 pt-2 pb-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {IMAGES.map((img, i) => (
-          <button
-            key={i}
-            onClick={() => setLightboxIndex(i)}
-            className="relative aspect-[4/3] overflow-hidden rounded group focus:outline-none focus:ring-2 focus:ring-blue"
-          >
-            <img
-              src={img.src}
-              alt={img.alt}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-anthracite/0 group-hover:bg-anthracite/10 transition-colors" />
-          </button>
+      {/* 2 Kacheln */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {GALLERIES.map((gallery) => (
+          <GalleryTile
+            key={gallery.id}
+            gallery={gallery}
+            onOpen={(index) => setActiveGallery({ gallery, index })}
+          />
         ))}
       </div>
 
       {/* Lightbox */}
-      {lightboxIndex !== null && (
+      {activeGallery && (
         <div
           className="lightbox-overlay"
-          onClick={() => setLightboxIndex(null)}
+          role="dialog"
+          aria-label={`${activeGallery.gallery.label} Galerie`}
+          onClick={() => setActiveGallery(null)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          {/* Close button */}
-          <button
-            onClick={() => setLightboxIndex(null)}
-            className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl z-10 w-10 h-10 flex items-center justify-center"
-            aria-label="Schließen"
-          >
-            ×
-          </button>
+          <button onClick={() => setActiveGallery(null)} className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl z-10 w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors" aria-label="Schließen">×</button>
 
-          {/* Previous */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((i) => (i - 1 + IMAGES.length) % IMAGES.length);
-            }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white text-4xl z-10"
+            onClick={(e) => { e.stopPropagation(); setActiveGallery((a) => a ? { ...a, index: (a.index - 1 + a.gallery.images.length) % a.gallery.images.length } : null); }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 text-white/60 hover:text-white text-4xl z-10 w-12 h-16 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
             aria-label="Vorheriges Bild"
-          >
-            ‹
-          </button>
+          >‹</button>
 
-          {/* Image */}
           <img
-            src={IMAGES[lightboxIndex].src}
-            alt={IMAGES[lightboxIndex].alt}
+            src={activeGallery.gallery.images[activeGallery.index].src}
+            alt={activeGallery.gallery.images[activeGallery.index].alt}
             className="max-h-[85vh] max-w-[90vw] object-contain rounded shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />
 
-          {/* Next */}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLightboxIndex((i) => (i + 1) % IMAGES.length);
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white text-4xl z-10"
+            onClick={(e) => { e.stopPropagation(); setActiveGallery((a) => a ? { ...a, index: (a.index + 1) % a.gallery.images.length } : null); }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-white/60 hover:text-white text-4xl z-10 w-12 h-16 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
             aria-label="Nächstes Bild"
-          >
-            ›
-          </button>
+          >›</button>
 
-          {/* Counter */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
-            {lightboxIndex + 1} / {IMAGES.length}
+            {activeGallery.gallery.label} · {activeGallery.index + 1} / {activeGallery.gallery.images.length}
           </div>
         </div>
       )}
     </section>
+  );
+}
+
+function GalleryTile({ gallery, onOpen }) {
+  const [main, ...rest] = gallery.images;
+  const thumbs = rest.slice(0, 4);
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {/* Label */}
+      <div className="flex items-center justify-between px-0.5">
+        <span className="text-xs font-medium text-anthracite/70 uppercase tracking-widest">{gallery.label}</span>
+      </div>
+
+      {/* 1 large + 2x2 thumbnails (Airbnb style) */}
+      <button
+        onClick={() => onOpen(0)}
+        className="group relative rounded-xl overflow-hidden bg-offwhite border border-border hover:border-anthracite/20 transition-colors shadow-sm active:scale-[0.99]"
+        aria-label={`${gallery.label} Galerie öffnen — ${gallery.images.length} Fotos`}
+      >
+        <div className="grid grid-cols-[2fr_1fr_1fr] grid-rows-2 gap-0.5 h-48 sm:h-56">
+          {/* Large image: left, full height */}
+          <div className="row-span-2 overflow-hidden bg-stone/20">
+            <img
+              src={main.src}
+              alt={main.alt}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              loading="lazy"
+            />
+          </div>
+          {/* 4 thumbnails in 2x2 */}
+          {thumbs.map((img, i) => (
+            <div key={img.alt} className="overflow-hidden bg-stone/20">
+              <img
+                src={img.src}
+                alt={img.alt}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-anthracite/0 group-hover:bg-anthracite/30 transition-colors" />
+        {/* Permanent photo count badge */}
+        <div className="absolute bottom-2.5 right-2.5 bg-white/90 text-anthracite text-xs font-medium px-2.5 py-1 rounded-full shadow-sm pointer-events-none">
+          Alle {gallery.images.length} Fotos
+        </div>
+      </button>
+    </div>
   );
 }

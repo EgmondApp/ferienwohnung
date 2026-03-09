@@ -1,3 +1,5 @@
+// Firebase client setup. Exports `db` (Firestore instance) used by all hooks.
+// Project: egmondbelegung (europe-west3). Config is public/client-safe.
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
@@ -11,5 +13,5 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
+export const db = getFirestore(app);
 export { app };

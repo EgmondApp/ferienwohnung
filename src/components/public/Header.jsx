@@ -1,51 +1,59 @@
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
-/**
- * Full-width hero with text overlay.
- * Replace the image path with your actual hero image.
- */
+const SLIDES = [
+  { src: './images/hero.jpg',        alt: 'Blick auf den Strand von Egmond aan Zee', position: 'center 75%' },
+  { src: './images/exterior-1.jpg',  alt: 'Balkon mit Meerblick',                    position: 'center 50%' },
+  { src: './images/exterior-8.jpg',  alt: 'Umgebung Egmond aan Zee',                 position: 'center 50%' },
+  { src: './images/interior-2.jpg',  alt: 'Schlafzimmer',                            position: 'center 40%' },
+];
+
 export default function Header() {
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActive((i) => (i + 1) % SLIDES.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <header className="relative w-full h-[70vh] min-h-[400px] max-h-[700px] overflow-hidden">
-      {/* Hero image */}
-      <img
-        src="./images/hero.jpg"
-        alt="Ferienwohnung"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+    <header className="relative w-full h-[42vh] min-h-[220px] overflow-hidden">
+      {SLIDES.map((slide, i) => (
+        <img
+          key={slide.src}
+          src={slide.src}
+          alt={slide.alt}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+          style={{ objectPosition: slide.position, opacity: i === active ? 1 : 0 }}
+        />
+      ))}
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-anthracite/70 via-anthracite/30 to-anthracite/10" />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-anthracite/75 via-anthracite/20 to-transparent" />
 
-      {/* Navigation bar */}
-      <nav className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 md:px-12">
-        <span className="font-serif text-white text-lg tracking-wide">Egmond aan Zee</span>
-        <div className="flex gap-6 text-sm text-white/80">
-          <a href="#galerie" className="hover:text-white transition-colors">Galerie</a>
-          <a href="#kalender" className="hover:text-white transition-colors">Verfügbarkeit</a>
-          <a href="#anfrage" className="hover:text-white transition-colors">Anfrage</a>
-          <Link to="/admin" className="hover:text-white transition-colors opacity-50 hover:opacity-80">
-            Admin
-          </Link>
-        </div>
-      </nav>
-
-      {/* Hero text */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 px-6 pb-12 md:px-12 md:pb-16">
-        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-white mb-3 leading-tight">
+      {/* Title */}
+      <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-8 md:px-12">
+        <h1 className="font-serif text-3xl md:text-5xl text-white drop-shadow-lg">
           Egmond aan Zee
-          <br />
-          <span className="text-gold">am See</span>
         </h1>
-        <p className="text-white/80 text-lg md:text-xl max-w-xl font-light">
-          Wind, Wellen und Dünen
+        <p className="text-white/75 text-sm md:text-base mt-2 drop-shadow">
+          Ferienwohnung direkt am Meer
         </p>
-        <a
-          href="#anfrage"
-          className="inline-block mt-6 px-6 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded transition-colors"
-        >
-          Verfügbarkeit prüfen
-        </a>
+      </div>
+
+      {/* Dot indicators */}
+      <div className="absolute bottom-4 right-6 z-10 flex gap-1.5">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            aria-label={`Bild ${i + 1}`}
+            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+              i === active ? 'bg-white w-4' : 'bg-white/40 hover:bg-white/70'
+            }`}
+          />
+        ))}
       </div>
     </header>
   );
