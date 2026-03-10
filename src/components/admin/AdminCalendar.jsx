@@ -1,10 +1,10 @@
 // Admin calendar overview. Screen view: 12-month grid. Print view: strip calendar (6 months/page, 2 pages).
 import { useState } from 'react';
-import { isSameDay } from 'date-fns';
+import { isSameDay, addMonths, subMonths, getMonth, getYear } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
-import { parseDe, formatDeShort, formatDeDisplay, MONTH_NAMES } from '../../utils/dateHelpers';
-import { getOccupancy, getSpecialDayInfo } from '../../utils/calendarHelpers';
+import { parseDe, formatDe, formatDeShort, formatDeDisplay, MONTH_NAMES } from '../../utils/dateHelpers';
+import { getOccupancy, getSpecialDayInfo, isOccupied } from '../../utils/calendarHelpers';
 
 const IconCalendar = () => (
   <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -150,41 +150,66 @@ function PrintHalfYear({ year, months, occupancy }) {
   );
 }
 
-const DATE_RE = /^\d{2}\.\d{2}\.\d{4}$/;
-
 export default function AdminCalendar({ occupancy, loading, error, removeOccupancy, addOccupancy }) {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const months = Array.from({ length: 12 }, (_, i) => i);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [addForm, setAddForm] = useState({ name: '', arrival: '', departure: '', email: '', phone: '' });
+  const [addForm, setAddForm] = useState({ name: '', email: '', phone: '' });
+  const [addArrival, setAddArrival] = useState(null);
+  const [addDeparture, setAddDeparture] = useState(null);
+  const [addBaseMonth, setAddBaseMonth] = useState(() => new Date(currentYear, new Date().getMonth(), 1));
   const [addError, setAddError] = useState(null);
   const [addSaving, setAddSaving] = useState(false);
 
-  function hasConflict(arrival, departure) {
-    const newStart = parseDe(arrival);
-    const newEnd = parseDe(departure);
-    return occupancy.some((o) => {
-      const start = parseDe(o.startDate);
-      const end = parseDe(o.endDate);
-      return start < newEnd && end > newStart;
-    });
+  const addSecondMonth = addMonths(addBaseMonth, 1);
+  const addNights = addArrival && addDeparture ? Math.round((addDeparture - addArrival) / 86400000) : null;
+  const addSelectedRange = { start: addArrival, end: addDeparture };
+
+  function hasConflictBetween(start, end) {
+    const msDay = 86400000;
+    for (let d = new Date(start.getTime() + msDay); d < end; d = new Date(d.getTime() + msDay)) {
+      if (isOccupied(d, occupancy)) return true;
+    }
+    return false;
+  }
+
+  function handleAddDayClick(date) {
+    setAddError(null);
+    if (!addArrival || (addArrival && addDeparture)) {
+      setAddArrival(date);
+      setAddDeparture(null);
+    } else if (date > addArrival) {
+      if (hasConflictBetween(addArrival, date)) {
+        setAddArrival(date);
+        setAddDeparture(null);
+        setAddError('Zeitraum enthält belegte Tage — neuen Anreisetag wählen.');
+      } else {
+        setAddDeparture(date);
+      }
+    } else {
+      setAddArrival(date);
+      setAddDeparture(null);
+    }
+  }
+
+  function resetAddForm() {
+    setAddForm({ name: '', email: '', phone: '' });
+    setAddArrival(null);
+    setAddDeparture(null);
+    setAddError(null);
+    setShowAddForm(false);
   }
 
   async function handleAddOccupancy(e) {
     e.preventDefault();
     setAddError(null);
-    const { name, arrival, departure, email, phone } = addForm;
-    if (name.trim().length < 2) { setAddError('Name muss mindestens 2 Zeichen haben.'); return; }
-    if (!DATE_RE.test(arrival)) { setAddError('Anreise im Format TT.MM.JJJJ eingeben.'); return; }
-    if (!DATE_RE.test(departure)) { setAddError('Abreise im Format TT.MM.JJJJ eingeben.'); return; }
-    if (parseDe(departure) <= parseDe(arrival)) { setAddError('Abreise muss nach Anreise liegen.'); return; }
-    if (hasConflict(arrival, departure)) { setAddError('Zeitraum bereits belegt.'); return; }
+    if (!addArrival || !addDeparture) { setAddError('Bitte An- und Abreisetag im Kalender wählen.'); return; }
+    if (addForm.name.trim().length < 2) { setAddError('Name muss mindestens 2 Zeichen haben.'); return; }
     setAddSaving(true);
     try {
-      await addOccupancy(arrival, departure, name.trim(), email.trim(), phone.trim(), '');
-      setAddForm({ name: '', arrival: '', departure: '', email: '', phone: '' });
-      setShowAddForm(false);
+      await addOccupancy(formatDe(addArrival), formatDe(addDeparture), addForm.name.trim(), addForm.email.trim(), addForm.phone.trim(), '');
+      resetAddForm();
     } catch (err) {
       console.error('handleAddOccupancy:', err);
       setAddError('Fehler beim Speichern.');
@@ -198,7 +223,7 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
   return (
     <div>
       {/* Controls — screen only */}
-      <div className="flex items-center justify-between mb-4 no-print">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 no-print">
         <div className="flex items-center gap-3">
           <h2 className="font-serif text-xl text-anthracite">Jahreskalender</h2>
           <div className="flex items-center gap-1 bg-offwhite border border-border rounded-lg p-0.5">
@@ -218,63 +243,108 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setShowAddForm((v) => !v); setAddError(null); }}
-            className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            Belegung
+            <span className="hidden sm:inline">Belegung</span>
           </button>
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Z" />
             </svg>
-            Drucken
+            <span className="hidden sm:inline">Drucken</span>
           </button>
         </div>
       </div>
 
-      {/* Add occupancy form — screen only */}
+      {/* Add occupancy form with inline date picker — screen only */}
       {showAddForm && (
-        <form onSubmit={handleAddOccupancy} className="bg-white rounded-xl border border-border shadow-sm p-5 mb-4 no-print">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
-            <input
-              type="text" placeholder="Name *" value={addForm.name}
-              onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-              className="col-span-2 sm:col-span-1 px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
-            />
-            <input
-              type="text" placeholder="Anreise TT.MM.JJJJ *" value={addForm.arrival}
-              onChange={(e) => setAddForm((f) => ({ ...f, arrival: e.target.value }))}
-              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
-            />
-            <input
-              type="text" placeholder="Abreise TT.MM.JJJJ *" value={addForm.departure}
-              onChange={(e) => setAddForm((f) => ({ ...f, departure: e.target.value }))}
-              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
-            />
-            <input
-              type="email" placeholder="E-Mail" value={addForm.email}
-              onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
-              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
-            />
-            <input
-              type="tel" placeholder="Telefon" value={addForm.phone}
-              onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
-              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
-            />
+        <form onSubmit={handleAddOccupancy} className="bg-white rounded-xl border border-border shadow-sm mb-4 no-print">
+          {/* Date selection summary */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border">
+            <div>
+              {(addArrival || addDeparture) ? (
+                <div className="flex items-center gap-2.5 text-sm">
+                  <span className={`font-medium ${addArrival ? 'text-anthracite' : 'text-anthracite/35'}`}>
+                    {addArrival ? formatDeDisplay(addArrival) : 'Anreise'}
+                  </span>
+                  <span className="text-anthracite/25">→</span>
+                  <span className={`font-medium ${addDeparture ? 'text-anthracite' : 'text-anthracite/35'}`}>
+                    {addDeparture ? formatDeDisplay(addDeparture) : 'Abreise'}
+                  </span>
+                  {addNights && (
+                    <span className="ml-1 px-2 py-0.5 text-[11px] bg-offwhite border border-border rounded-full text-anthracite/50">
+                      {addNights} Nächte
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-sm text-anthracite/50">Anreisetag im Kalender wählen</span>
+              )}
+            </div>
+            {(addArrival || addDeparture) && (
+              <button type="button" onClick={() => { setAddArrival(null); setAddDeparture(null); }} className="text-xs text-anthracite/40 hover:text-anthracite transition-colors">
+                Zurücksetzen
+              </button>
+            )}
           </div>
-          {addError && <p className="text-sm text-primary mb-3">{addError}</p>}
-          <div className="flex items-center gap-2">
-            <button type="submit" disabled={addSaving} className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40">
-              {addSaving ? 'Speichern…' : 'Belegung eintragen'}
-            </button>
-            <button type="button" onClick={() => setShowAddForm(false)} className="px-4 py-2 text-sm text-anthracite/50 hover:text-anthracite transition-colors">
-              Abbrechen
-            </button>
+
+          {/* Inline 2-month picker */}
+          <div className="px-5 py-4">
+            {/* Mobile: single month */}
+            <div className="sm:hidden">
+              <div className="flex items-center justify-between mb-3">
+                <button type="button" onClick={() => setAddBaseMonth((m) => subMonths(m, 1))} className="p-2 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none">‹</button>
+                <span className="text-xs text-anthracite/50 font-medium">{addBaseMonth.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}</span>
+                <button type="button" onClick={() => setAddBaseMonth((m) => addMonths(m, 1))} className="p-2 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none">›</button>
+              </div>
+              <MonthCalendar year={getYear(addBaseMonth)} month={getMonth(addBaseMonth)} occupancy={occupancy} selectedRange={addSelectedRange} onDayClick={handleAddDayClick} showGuestName showHeading={false} />
+            </div>
+
+            {/* Desktop: two months */}
+            <div className="hidden sm:block relative">
+              <button type="button" onClick={() => setAddBaseMonth((m) => subMonths(m, 1))} className="absolute left-0 top-0 p-1 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none">‹</button>
+              <button type="button" onClick={() => setAddBaseMonth((m) => addMonths(m, 1))} className="absolute right-0 top-0 p-1 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none">›</button>
+              <div className="grid grid-cols-2 gap-8 px-7">
+                <MonthCalendar year={getYear(addBaseMonth)} month={getMonth(addBaseMonth)} occupancy={occupancy} selectedRange={addSelectedRange} onDayClick={handleAddDayClick} showGuestName />
+                <MonthCalendar year={getYear(addSecondMonth)} month={getMonth(addSecondMonth)} occupancy={occupancy} selectedRange={addSelectedRange} onDayClick={handleAddDayClick} showGuestName />
+              </div>
+            </div>
+          </div>
+
+          {/* Guest info + actions */}
+          <div className="px-5 pb-4 pt-1 border-t border-border space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input
+                type="text" placeholder="Name *" value={addForm.name}
+                onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+              />
+              <input
+                type="email" placeholder="E-Mail" value={addForm.email}
+                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+              />
+              <input
+                type="tel" placeholder="Telefon" value={addForm.phone}
+                onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
+                className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+              />
+            </div>
+            {addError && <p className="text-sm text-primary">{addError}</p>}
+            <div className="flex items-center gap-2">
+              <button type="submit" disabled={addSaving || !addArrival || !addDeparture} className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40">
+                {addSaving ? 'Speichern…' : 'Belegung eintragen'}
+              </button>
+              <button type="button" onClick={resetAddForm} className="px-4 py-2 text-sm text-anthracite/50 hover:text-anthracite transition-colors">
+                Abbrechen
+              </button>
+            </div>
           </div>
         </form>
       )}
