@@ -50,8 +50,6 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
 
   const displayed = filter === 'offen'
     ? inquiries.filter((i) => i.status !== 'gebucht' && i.status !== 'abgelehnt')
-    : filter === 'gebucht'
-    ? inquiries.filter((i) => i.status === 'gebucht')
     : inquiries;
 
   function hasConflict(arrival, departure) {
@@ -100,7 +98,7 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-serif text-xl text-anthracite">Anfragen</h2>
         <div className="flex gap-1 bg-offwhite border border-border rounded-lg p-1">
-          {[{ value: 'offen', label: 'Offen' }, { value: 'gebucht', label: 'Gebucht' }, { value: 'alle', label: 'Alle' }].map((opt) => (
+          {[{ value: 'offen', label: 'Offen' }, { value: 'alle', label: 'Alle' }].map((opt) => (
             <button
               key={opt.value}
               onClick={() => setFilter(opt.value)}
@@ -123,7 +121,7 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
 
       {displayed.length === 0 ? (
         <div className="bg-white rounded-xl border border-border shadow-sm px-5 py-12 text-center text-sm text-stone">
-          {filter === 'offen' ? 'Keine offenen Anfragen.' : filter === 'gebucht' ? 'Keine gebuchten Anfragen.' : 'Noch keine Anfragen eingegangen.'}
+          {filter === 'offen' ? 'Keine offenen Anfragen.' : 'Noch keine Anfragen eingegangen.'}
         </div>
       ) : (
         <div className="space-y-3">
@@ -196,7 +194,7 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
                         onClick={() => handleReject(inquiry)}
                         className="px-4 py-2 border border-border hover:border-primary hover:text-primary text-sm text-anthracite/50 rounded-lg transition-colors"
                       >
-                        Ablehnen
+                        Löschen
                       </button>
                     </div>
                   </div>
