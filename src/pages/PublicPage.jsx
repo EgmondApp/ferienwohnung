@@ -11,7 +11,7 @@ import { useOccupancy } from '../hooks/useOccupancy';
 import { useInquiries } from '../hooks/useInquiries';
 
 export default function PublicPage() {
-  const { occupancy } = useOccupancy();
+  const { occupancy, error: occupancyError } = useOccupancy();
   const { addInquiry } = useInquiries();
 
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -34,6 +34,11 @@ export default function PublicPage() {
   return (
     <div className="min-h-screen bg-warm">
       <Header />
+      {occupancyError && (
+        <div className="px-6 py-2 bg-primary/10 border-b border-primary/20 text-center text-sm text-primary">
+          Belegungsdaten konnten nicht geladen werden. Bitte Seite neu laden.
+        </div>
+      )}
 
       <DateSelector
         arrival={arrival}
@@ -78,7 +83,7 @@ export default function PublicPage() {
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
           </svg>
-          Gäste-Info & Anreise
+          Informationen & Anreise
         </button>
       </section>
 

@@ -1,4 +1,4 @@
-// Admin shell with tab navigation (Kalender / Anfragen).
+// Admin page — single scroll view: calendar + inquiries.
 import { useState } from 'react';
 import AdminCalendar from './AdminCalendar';
 import InquiryList from './InquiryList';
@@ -41,16 +41,16 @@ function PasswordModal({ changePassword, onClose }) {
           ) : (
             <>
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1.5">Aktuelles Passwort</label>
-                <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={inputClass} autoFocus required />
+                <label htmlFor="pw-current" className="block text-xs text-anthracite/50 mb-1.5">Aktuelles Passwort</label>
+                <input id="pw-current" name="current-password" type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={inputClass} autoComplete="current-password" autoFocus required />
               </div>
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1.5">Neues Passwort</label>
-                <input type="password" value={next} onChange={(e) => setNext(e.target.value)} className={inputClass} required />
+                <label htmlFor="pw-new" className="block text-xs text-anthracite/50 mb-1.5">Neues Passwort</label>
+                <input id="pw-new" name="new-password" type="password" value={next} onChange={(e) => setNext(e.target.value)} className={inputClass} autoComplete="new-password" required />
               </div>
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1.5">Wiederholen</label>
-                <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputClass} required />
+                <label htmlFor="pw-confirm" className="block text-xs text-anthracite/50 mb-1.5">Wiederholen</label>
+                <input id="pw-confirm" name="confirm-password" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputClass} autoComplete="new-password" required />
               </div>
               {error && <p className="text-primary text-sm border border-primary/20 bg-primary/5 rounded px-3 py-2">{error}</p>}
               <button type="submit" disabled={saving} className="w-full py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40">
@@ -64,96 +64,38 @@ function PasswordModal({ changePassword, onClose }) {
   );
 }
 
-const TABS = [
-  { id: 'calendar', label: 'Kalender' },
-  { id: 'inquiries', label: 'Anfragen' },
-];
-
 export default function AdminLayout({ onLogout, changePassword }) {
-  const [activeTab, setActiveTab] = useState('calendar');
   const [pwModalOpen, setPwModalOpen] = useState(false);
   const occupancyHook = useOccupancy();
   const inquiriesHook = useInquiries();
-
-  const newCount = inquiriesHook.inquiries.filter((i) => i.status === 'neu').length;
 
   return (
     <div className="min-h-screen bg-warm">
       {/* Header */}
       <header className="bg-anthracite no-print">
         <div className="max-w-6xl mx-auto px-6 md:px-12">
-
-          {/* Top row */}
           <div className="h-14 flex items-center justify-between gap-4">
             <span className="font-serif text-lg text-white shrink-0">Egmond aan Zee</span>
-
-            {/* Desktop tabs — segmented control */}
-            <nav className="hidden md:flex gap-1 bg-white/10 rounded-lg p-1">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative px-4 py-1.5 text-sm font-medium rounded-md transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-white text-anthracite shadow-sm'
-                      : 'text-white/55 hover:text-white'
-                  }`}
-                >
-                  {tab.label}
-                  {tab.id === 'inquiries' && newCount > 0 && (
-                    <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium bg-primary text-white rounded-full">
-                      {newCount}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-
             <div className="flex items-center gap-4 shrink-0">
-              <a href="#/" className="text-sm text-white/40 hover:text-white/80 transition-colors hidden sm:block">← Gästeseite</a>
-              <button onClick={() => setPwModalOpen(true)} className="text-sm text-white/40 hover:text-white/80 transition-colors hidden sm:block">Passwort</button>
+<a href="#/" className="text-sm text-white/40 hover:text-white/80 transition-colors hidden sm:block">← Gästeseite</a>
+              <button onClick={() => setPwModalOpen(true)} className="text-sm text-white/40 hover:text-white/80 transition-colors">Passwort</button>
               <button onClick={onLogout} className="text-sm text-white/40 hover:text-white/80 transition-colors">Abmelden</button>
             </div>
           </div>
-
-          {/* Mobile tabs — segmented control */}
-          <nav className="md:hidden flex gap-1 bg-white/10 rounded-lg p-1 mb-3 -mx-0">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-white text-anthracite shadow-sm'
-                    : 'text-white/55 hover:text-white'
-                }`}
-              >
-                {tab.label}
-                {tab.id === 'inquiries' && newCount > 0 && (
-                  <span className="ml-1 inline-flex items-center justify-center w-4 h-4 text-[10px] font-medium bg-primary text-white rounded-full">
-                    {newCount}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-
         </div>
       </header>
 
       {/* Content */}
-      <main className="max-w-6xl mx-auto px-6 md:px-12 py-6">
-        {activeTab === 'calendar' && (
-          <AdminCalendar
-            occupancy={occupancyHook.occupancy}
-            loading={occupancyHook.loading}
-            error={occupancyHook.error}
-            removeOccupancy={occupancyHook.removeOccupancy}
-          />
-        )}
-        {activeTab === 'inquiries' && (
+      <main className="max-w-6xl mx-auto px-6 md:px-12 py-6 space-y-10">
+        <div id="anfragen">
           <InquiryList {...inquiriesHook} addOccupancy={occupancyHook.addOccupancy} occupancy={occupancyHook.occupancy} />
-        )}
+        </div>
+        <AdminCalendar
+          occupancy={occupancyHook.occupancy}
+          loading={occupancyHook.loading}
+          error={occupancyHook.error}
+          removeOccupancy={occupancyHook.removeOccupancy}
+        />
       </main>
 
       {pwModalOpen && (

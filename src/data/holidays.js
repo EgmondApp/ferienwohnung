@@ -43,6 +43,19 @@ export const publicHolidays = {
     { date: '25.12.2027', name: '1. Weihnachtsfeiertag' },
     { date: '26.12.2027', name: '2. Weihnachtsfeiertag' },
   ],
+  2028: [
+    { date: '01.01.2028', name: 'Neujahr' },
+    { date: '14.04.2028', name: 'Karfreitag' },
+    { date: '17.04.2028', name: 'Ostermontag' },
+    { date: '01.05.2028', name: 'Tag der Arbeit' },
+    { date: '25.05.2028', name: 'Christi Himmelfahrt' },
+    { date: '05.06.2028', name: 'Pfingstmontag' },
+    { date: '15.06.2028', name: 'Fronleichnam' },
+    { date: '03.10.2028', name: 'Tag der Deutschen Einheit' },
+    { date: '01.11.2028', name: 'Allerheiligen' },
+    { date: '25.12.2028', name: '1. Weihnachtsfeiertag' },
+    { date: '26.12.2028', name: '2. Weihnachtsfeiertag' },
+  ],
 };
 
 export const schoolHolidays = {
@@ -70,6 +83,13 @@ export const schoolHolidays = {
     { start: '23.10.2027', end: '06.11.2027', name: 'Herbstferien' },
     { start: '24.12.2027', end: '31.12.2027', name: 'Weihnachtsferien' },
   ],
+  2028: [
+    { start: '10.04.2028', end: '22.04.2028', name: 'Osterferien' },
+    { start: '06.06.2028', end: '06.06.2028', name: 'Pfingstferien' },
+    { start: '03.07.2028', end: '15.08.2028', name: 'Sommerferien' },
+    { start: '09.10.2028', end: '21.10.2028', name: 'Herbstferien' },
+    { start: '21.12.2028', end: '05.01.2029', name: 'Weihnachtsferien' },
+  ],
 };
 
 export const bridgeDays = {
@@ -86,5 +106,9 @@ export const bridgeDays = {
   2027: [
     { date: '07.05.2027', name: 'Brückentag (Christi Himmelfahrt)' },
     { date: '28.05.2027', name: 'Brückentag (Fronleichnam)' },
+  ],
+  2028: [
+    { date: '26.05.2028', name: 'Brückentag (Christi Himmelfahrt)' },
+    { date: '16.06.2028', name: 'Brückentag (Fronleichnam)' },
   ],
 };

@@ -3,7 +3,7 @@
 // status values: "neu" | "gebucht" | "abgelehnt". Used by AdminLayout, InquiryList, PublicPage.
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, ADMIN_KEY } from '../firebase';
 
 const COLLECTION = 'inquiries';
 
@@ -44,7 +44,7 @@ export function useInquiries() {
   }
 
   async function updateInquiryStatus(id, status) {
-    await updateDoc(doc(db, COLLECTION, id), { status });
+    await updateDoc(doc(db, COLLECTION, id), { status, _ak: ADMIN_KEY });
   }
 
   async function deleteInquiry(id) {

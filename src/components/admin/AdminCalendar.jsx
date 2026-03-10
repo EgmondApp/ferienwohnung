@@ -153,7 +153,6 @@ function PrintHalfYear({ year, months, occupancy }) {
 export default function AdminCalendar({ occupancy, loading, error, removeOccupancy }) {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
-  const [expandedId, setExpandedId] = useState(null);
   const months = Array.from({ length: 12 }, (_, i) => i);
 
   if (loading) return <div className="text-stone text-sm py-8">Lade Belegungsdaten...</div>;
@@ -234,14 +233,14 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
 
       {/* Occupancy list — screen only */}
       <div className="mt-6 no-print">
-        <h3 className="font-serif text-base text-anthracite mb-3 px-0.5">Belegungen {year}</h3>
+        <h2 className="font-serif text-xl text-anthracite mb-3 px-0.5">Belegungen {year}</h2>
         {occupancy.filter((o) => {
           const [, , y] = o.startDate.split('.').map(Number);
           return y === year;
         }).length === 0 ? (
           <div className="bg-white rounded-xl border border-border shadow-sm px-5 py-6 text-sm text-stone text-center">Keine Belegungen für {year}.</div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {occupancy
               .filter((o) => { const [, , y] = o.startDate.split('.').map(Number); return y === year; })
               .sort((a, b) => {
@@ -250,59 +249,52 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
                 return new Date(ay, am - 1, ad) - new Date(by, bm - 1, bd);
               })
               .map((o) => (
-                <div key={o.id} className="bg-white rounded-xl border border-green-200 shadow-sm overflow-hidden opacity-90">
-                  <button
-                    onClick={() => setExpandedId(expandedId === o.id ? null : o.id)}
-                    className="w-full px-5 py-4 flex items-start gap-3 text-left hover:bg-warm/50 transition-colors"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-green-400 shrink-0 mt-1.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-anthracite">
-                          {o.note || <span className="text-anthracite/30 font-normal">–</span>}
-                        </span>
-                        <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-green-100 text-green-800">Bestätigt</span>
-                        <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full bg-offwhite border border-border text-anthracite/55">
-                          <IconMoon />{calcNights(o.startDate, o.endDate)} Nächte
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 mt-1.5 text-xs text-anthracite/50">
-                        <IconCalendar />{formatDeShort(parseDe(o.startDate))} – {formatDeDisplay(parseDe(o.endDate))}
-                      </div>
-                    </div>
-                    <span className="text-anthracite/20 text-xs shrink-0 mt-1">{expandedId === o.id ? '▲' : '▼'}</span>
-                  </button>
-                  {expandedId === o.id && (
-                    <div className="px-5 pb-4 pt-3 border-t border-border bg-warm/20">
-                      {(o.email || o.phone) ? (
-                        <div className="flex flex-wrap gap-4 text-sm mb-3">
-                          {o.email && (
-                            <a href={`mailto:${o.email}`} className="flex items-center gap-1.5 text-blue hover:underline">
-                              <IconMail />{o.email}
-                            </a>
-                          )}
-                          {o.phone && (
-                            <span className="flex items-center gap-1.5 text-anthracite/60">
-                              <IconPhone />{o.phone}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-anthracite/30 mb-3">Keine Kontaktdaten hinterlegt.</p>
+                <div key={o.id} className="bg-white rounded-xl border border-green-200 shadow-sm px-5 py-4 opacity-90">
+                  {/* Name + badges */}
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
+                    <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                    <span className="text-sm font-semibold text-anthracite">
+                      {o.note || <span className="text-anthracite/30 font-normal">–</span>}
+                    </span>
+                    <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-green-100 text-green-800">Bestätigt</span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full bg-offwhite border border-border text-anthracite/55">
+                      <IconMoon />{calcNights(o.startDate, o.endDate)} Nächte
+                    </span>
+                  </div>
+                  {/* Dates */}
+                  <div className="flex items-center gap-1 mb-2 text-xs text-anthracite/50">
+                    <IconCalendar />{formatDeShort(parseDe(o.startDate))} – {formatDeDisplay(parseDe(o.endDate))}
+                  </div>
+                  {/* Contact */}
+                  {(o.email || o.phone) && (
+                    <div className="flex flex-wrap gap-4 mb-3 text-sm">
+                      {o.email && (
+                        <a href={`mailto:${o.email}`} className="flex items-center gap-1.5 text-blue hover:underline">
+                          <IconMail />{o.email}
+                        </a>
                       )}
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`Belegung "${o.note || o.startDate}" wirklich löschen?`)) {
-                            removeOccupancy(o.id);
-                            setExpandedId(null);
-                          }
-                        }}
-                        className="text-xs text-primary/60 hover:text-primary transition-colors underline underline-offset-2"
-                      >
-                        Belegung löschen
-                      </button>
+                      {o.phone && (
+                        <span className="flex items-center gap-1.5 text-anthracite/60">
+                          <IconPhone />{o.phone}
+                        </span>
+                      )}
                     </div>
                   )}
+                  {/* Message */}
+                  {o.message && (
+                    <p className="text-sm text-anthracite/60 italic mb-3">„{o.message}"</p>
+                  )}
+                  {/* Delete */}
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Belegung "${o.note || o.startDate}" wirklich löschen?`)) {
+                        removeOccupancy(o.id);
+                      }
+                    }}
+                    className="text-xs text-primary/60 hover:text-primary transition-colors underline underline-offset-2"
+                  >
+                    Belegung löschen
+                  </button>
                 </div>
               ))}
           </div>

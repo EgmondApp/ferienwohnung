@@ -7,7 +7,9 @@
       "Bash(ls -t \"C:/Users/kilia/Pictures/Screenshots/\"*.png)",
       "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Users\\\\kilia\\\\Pictures\\\\Screenshots\\\\'' | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName\")",
       "Bash(shutdown /s /t 30)",
-      "Bash(powershell -Command \"Stop-Computer -Force\")"
+      "Bash(powershell -Command \"Stop-Computer -Force\")",
+      "Bash(claude config:*)",
+      "Read(//c/Users/kilia/.claude/**)"
     ]
   }
 }

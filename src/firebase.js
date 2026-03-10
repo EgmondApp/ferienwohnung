@@ -15,3 +15,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export { app };
+
+// Simple write-guard for Firestore rules. Not a user password —
+// a separate client key to block casual/automated abuse.
+// Change this value AND update firestore.rules if compromised.
+export const ADMIN_KEY = 'egmond-fw-XK9m';

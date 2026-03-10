@@ -12,14 +12,20 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!arrival || !departure) {
       setError('Bitte wählen Sie zuerst einen Reisezeitraum.');
       return;
     }
-    if (!form.name.trim() || !form.email.trim()) {
-      setError('Bitte füllen Sie Name und E-Mail aus.');
+    if (form.name.trim().length < 2) {
+      setError('Bitte geben Sie Ihren vollständigen Namen ein.');
+      return;
+    }
+    if (!EMAIL_RE.test(form.email.trim())) {
+      setError('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
       return;
     }
     setSending(true);
@@ -50,6 +56,13 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
             <p className="text-green-600/70 text-sm mt-2">
               Sie erhalten in Kürze eine Antwort per E-Mail.
             </p>
+            <button
+              type="button"
+              onClick={() => setSent(false)}
+              className="mt-5 px-5 py-2 text-sm font-medium rounded-lg border border-green-300 text-green-800 hover:bg-green-100 transition-colors"
+            >
+              Neue Anfrage stellen
+            </button>
           </div>
         ) : (
           <>
@@ -86,26 +99,26 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-anthracite/50 mb-1.5">Name *</label>
-                  <input type="text" value={form.name} onChange={(e) => update('name', e.target.value)}
-                    className={inputClass} placeholder="Max Mustermann" required />
+                  <label htmlFor="inq-name" className="block text-xs text-anthracite/50 mb-1.5">Name *</label>
+                  <input id="inq-name" name="name" type="text" value={form.name} onChange={(e) => update('name', e.target.value)}
+                    className={inputClass} placeholder="Max Mustermann" required autoComplete="name" />
                 </div>
                 <div>
-                  <label className="block text-xs text-anthracite/50 mb-1.5">E-Mail *</label>
-                  <input type="email" value={form.email} onChange={(e) => update('email', e.target.value)}
-                    className={inputClass} placeholder="max@beispiel.de" required />
+                  <label htmlFor="inq-email" className="block text-xs text-anthracite/50 mb-1.5">E-Mail *</label>
+                  <input id="inq-email" name="email" type="email" value={form.email} onChange={(e) => update('email', e.target.value)}
+                    className={inputClass} placeholder="max@beispiel.de" required autoComplete="email" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-anthracite/50 mb-1.5">Telefon (optional)</label>
-                  <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)}
-                    className={inputClass} placeholder="0170 1234567" />
+                  <label htmlFor="inq-phone" className="block text-xs text-anthracite/50 mb-1.5">Telefon (optional)</label>
+                  <input id="inq-phone" name="phone" type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)}
+                    className={inputClass} placeholder="0170 1234567" autoComplete="tel" />
                 </div>
                 <div>
-                  <label className="block text-xs text-anthracite/50 mb-1.5">Personen</label>
-                  <select value={form.guests} onChange={(e) => update('guests', Number(e.target.value))}
+                  <label htmlFor="inq-guests" className="block text-xs text-anthracite/50 mb-1.5">Personen</label>
+                  <select id="inq-guests" name="guests" value={form.guests} onChange={(e) => update('guests', Number(e.target.value))}
                     className={inputClass}>
                     {[1, 2, 3, 4].map((n) => (
                       <option key={n} value={n}>{n} {n === 1 ? 'Person' : 'Personen'}</option>
@@ -115,8 +128,11 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
               </div>
 
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1.5">Nachricht (optional)</label>
-                <textarea value={form.message} onChange={(e) => update('message', e.target.value)}
+                <div className="flex justify-between mb-1.5">
+                  <label htmlFor="inq-message" className="text-xs text-anthracite/50">Nachricht (optional)</label>
+                  <span className={`text-xs ${form.message.length > 1800 ? 'text-primary' : 'text-anthracite/30'}`}>{form.message.length}/2000</span>
+                </div>
+                <textarea id="inq-message" name="message" value={form.message} onChange={(e) => update('message', e.target.value.slice(0, 2000))}
                   className={`${inputClass} h-28 resize-none`}
                   placeholder="Haben Sie besondere Wünsche oder Fragen?" />
               </div>

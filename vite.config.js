@@ -17,8 +17,9 @@ export default defineConfig({
         scope: '/ferienwohnung/',
         start_url: '/ferienwohnung/',
         icons: [
-          { src: '/ferienwohnung/images/Favicon.png', sizes: '192x192', type: 'image/png' },
-          { src: '/ferienwohnung/images/Favicon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/ferienwohnung/images/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/ferienwohnung/images/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: '/ferienwohnung/images/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
     }),

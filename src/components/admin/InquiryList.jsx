@@ -35,8 +35,15 @@ function formatRange(arrival, departure) {
   return `${formatDeShort(parseDe(arrival))} – ${formatDeDisplay(parseDe(departure))}`;
 }
 
+function formatTimestamp(ts) {
+  if (!ts?.seconds) return '–';
+  return new Date(ts.seconds * 1000).toLocaleDateString('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
 export default function InquiryList({ inquiries, loading, error, deleteInquiry, updateInquiryStatus, addOccupancy, occupancy = [] }) {
-  const [expandedId, setExpandedId] = useState(null);
   const [confirmedId, setConfirmedId] = useState(null);
   const [errorId, setErrorId] = useState(null);
   const [filter, setFilter] = useState('offen');
@@ -44,14 +51,6 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
   const displayed = filter === 'offen'
     ? inquiries.filter((i) => i.status !== 'gebucht' && i.status !== 'abgelehnt')
     : inquiries;
-
-  function formatTimestamp(ts) {
-    if (!ts?.seconds) return '–';
-    return new Date(ts.seconds * 1000).toLocaleDateString('de-DE', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
-  }
 
   function hasConflict(arrival, departure) {
     const newStart = parseDe(arrival);
@@ -70,10 +69,9 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
       return;
     }
     try {
-      await addOccupancy(inquiry.arrival, inquiry.departure, inquiry.name, inquiry.email || '', inquiry.phone || '');
+      await addOccupancy(inquiry.arrival, inquiry.departure, inquiry.name, inquiry.email || '', inquiry.phone || '', inquiry.message || '');
       await updateInquiryStatus(inquiry.id, 'gebucht');
       setConfirmedId(inquiry.id);
-      setExpandedId(null);
       setTimeout(() => setConfirmedId(null), 3000);
     } catch (err) {
       console.error('handleAccept:', err);
@@ -97,8 +95,8 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="font-serif text-xl text-anthracite">Anfragen ({inquiries.length})</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-serif text-xl text-anthracite">Anfragen</h2>
         <div className="flex gap-1 bg-offwhite border border-border rounded-lg p-1">
           {[{ value: 'offen', label: 'Offen' }, { value: 'alle', label: 'Alle' }].map((opt) => (
             <button
@@ -126,97 +124,79 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
           {filter === 'offen' ? 'Keine offenen Anfragen.' : 'Noch keine Anfragen eingegangen.'}
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {displayed.map((inquiry) => {
             const isGebucht = inquiry.status === 'gebucht';
             const nights = calcNights(inquiry.arrival, inquiry.departure);
             return (
-              <div key={inquiry.id} className={`bg-white rounded-xl border overflow-hidden shadow-sm ${isGebucht ? 'border-green-200 opacity-60' : 'border-border'}`}>
+              <div key={inquiry.id} className={`bg-white rounded-xl border shadow-sm px-5 py-4 ${isGebucht ? 'border-green-200 opacity-60' : 'border-border'}`}>
 
-                {/* Summary row */}
-                <button
-                  onClick={() => setExpandedId(expandedId === inquiry.id ? null : inquiry.id)}
-                  className="w-full px-5 py-4 flex items-start gap-3 text-left hover:bg-warm/50 transition-colors"
-                >
-                  {/* Status dot */}
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${isGebucht ? 'bg-green-400' : 'bg-primary/60'}`} />
-
-                  <div className="flex-1 min-w-0">
-                    {/* Name + badge */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-anthracite">{inquiry.name}</span>
-                      {isGebucht && (
-                        <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-green-100 text-green-800">Gebucht</span>
-                      )}
-                      {/* Nights badge */}
-                      <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full bg-offwhite border border-border text-anthracite/55">
-                        <IconMoon />{nights} Nächte
-                      </span>
-                    </div>
-                    {/* Date + persons row */}
-                    <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                      <span className="flex items-center gap-1 text-xs text-anthracite/50">
-                        <IconCalendar />{formatRange(inquiry.arrival, inquiry.departure)}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-anthracite/40">
-                        <IconPerson />{inquiry.guests} {Number(inquiry.guests) === 1 ? 'Person' : 'Personen'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0 mt-0.5">
-                    <span className="text-xs text-anthracite/25 hidden lg:block">{formatTimestamp(inquiry.createdAt)}</span>
-                    <span className="text-anthracite/30 text-xs">{expandedId === inquiry.id ? '▲' : '▼'}</span>
-                  </div>
-                </button>
-
-                {/* Detail panel */}
-                {expandedId === inquiry.id && (
-                  <div className="px-5 pb-5 pt-3 border-t border-border bg-warm/20">
-
-                    {/* Contact info */}
-                    <div className="flex flex-wrap gap-4 mb-4 text-sm">
-                      <a href={`mailto:${inquiry.email}`} className="flex items-center gap-1.5 text-blue hover:underline">
-                        <IconMail />{inquiry.email}
-                      </a>
-                      {inquiry.phone && (
-                        <span className="flex items-center gap-1.5 text-anthracite/60">
-                          <IconPhone />{inquiry.phone}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Message */}
-                    {inquiry.message && (
-                      <div className="mb-4 bg-white rounded-lg border border-border p-3 text-sm text-anthracite/70 italic">
-                        „{inquiry.message}"
-                      </div>
+                {/* Top row: name + badges + timestamp */}
+                <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`w-2 h-2 rounded-full shrink-0 mt-0.5 ${isGebucht ? 'bg-green-400' : 'bg-primary/60'}`} />
+                    <span className="text-sm font-semibold text-anthracite">{inquiry.name}</span>
+                    {isGebucht && (
+                      <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-green-100 text-green-800">Gebucht</span>
                     )}
+                    <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full bg-offwhite border border-border text-anthracite/55">
+                      <IconMoon />{nights} Nächte
+                    </span>
+                  </div>
+                  <span className="text-xs text-anthracite/25 shrink-0">{formatTimestamp(inquiry.createdAt)}</span>
+                </div>
 
-                    {/* Actions */}
-                    {!isGebucht && (
-                      <div className="pt-1">
-                        {errorId === inquiry.id && (
-                          <p className="text-sm text-primary font-medium mb-2">
-                            Zeitraum bereits belegt — Buchung kann nicht eingetragen werden.
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleAccept(inquiry)}
-                            className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors"
-                          >
-                            Annehmen
-                          </button>
-                          <button
-                            onClick={() => handleReject(inquiry)}
-                            className="px-4 py-2 border border-border hover:border-primary hover:text-primary text-sm text-anthracite/50 rounded-lg transition-colors"
-                          >
-                            Ablehnen
-                          </button>
-                        </div>
-                      </div>
+                {/* Date + persons */}
+                <div className="flex items-center gap-4 mb-3 flex-wrap">
+                  <span className="flex items-center gap-1 text-xs text-anthracite/50">
+                    <IconCalendar />{formatRange(inquiry.arrival, inquiry.departure)}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-anthracite/40">
+                    <IconPerson />{inquiry.guests} {Number(inquiry.guests) === 1 ? 'Person' : 'Personen'}
+                  </span>
+                </div>
+
+                {/* Contact */}
+                <div className="flex flex-wrap gap-4 mb-3 text-sm">
+                  <a href={`mailto:${inquiry.email}`} className="flex items-center gap-1.5 text-blue hover:underline">
+                    <IconMail />{inquiry.email}
+                  </a>
+                  {inquiry.phone && (
+                    <span className="flex items-center gap-1.5 text-anthracite/60">
+                      <IconPhone />{inquiry.phone}
+                    </span>
+                  )}
+                </div>
+
+                {/* Message */}
+                {inquiry.message && (
+                  <div className="mb-3 bg-warm rounded-lg border border-border px-3 py-2 text-sm text-anthracite/70 italic">
+                    „{inquiry.message}"
+                  </div>
+                )}
+
+                {/* Actions */}
+                {!isGebucht && (
+                  <div className="pt-1">
+                    {errorId === inquiry.id && (
+                      <p className="text-sm text-primary font-medium mb-2">
+                        Zeitraum bereits belegt — Buchung kann nicht eingetragen werden.
+                      </p>
                     )}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleAccept(inquiry)}
+                        className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors"
+                      >
+                        Annehmen
+                      </button>
+                      <button
+                        onClick={() => handleReject(inquiry)}
+                        className="px-4 py-2 border border-border hover:border-primary hover:text-primary text-sm text-anthracite/50 rounded-lg transition-colors"
+                      >
+                        Ablehnen
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

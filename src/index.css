@@ -41,8 +41,8 @@
   }
 
   .cal-day--selected {
-    background-color: rgba(5,102,168,0.12);
-    color: #0566A8;
+    background-color: rgba(5,102,168,0.12) !important;
+    color: #0566A8 !important;
     border-radius: 0;
   }
 

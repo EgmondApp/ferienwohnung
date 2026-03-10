@@ -29,13 +29,16 @@ export default function LoginGate({ onLogin }) {
         <div className="bg-white rounded-xl border border-border p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs text-anthracite/50 mb-1.5">Passwort</label>
+              <label htmlFor="login-password" className="block text-xs text-anthracite/50 mb-1.5">Passwort</label>
               <input
+                id="login-password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors"
                 placeholder="Passwort eingeben"
+                autoComplete="current-password"
                 autoFocus
               />
             </div>

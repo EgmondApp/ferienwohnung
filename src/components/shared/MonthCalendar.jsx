@@ -15,6 +15,7 @@ export default function MonthCalendar({
   onOccupiedClick,
   compact = false,
   showGuestName = false,
+  occupiedLabel = null,
   showHeading = true,
 }) {
   const weeks = buildMonthGrid(year, month);
@@ -47,14 +48,14 @@ export default function MonthCalendar({
     const { start, end } = selectedRange;
     const { occupied, isArrival, isDeparture, isSplit } = getEntryInfo(date);
 
-    if (past) classes.push('cal-day--past');
-    if (today) classes.push('cal-day--today');
-    if (isWeekend(date) && !occupied) classes.push('cal-day--weekend');
-
     const isUserArrival = start && isSameDay(date, start);
     const isUserDeparture = end && isSameDay(date, end);
     const isInRange = start && end && date > start && date < end;
     const isUserSelected = isUserArrival || isUserDeparture || isInRange;
+
+    if (past) classes.push('cal-day--past');
+    if (today) classes.push('cal-day--today');
+    if (isWeekend(date) && !occupied && !isUserSelected) classes.push('cal-day--weekend');
 
     if (isUserArrival) {
       classes.push('cal-day--arrival');
@@ -119,9 +120,16 @@ export default function MonthCalendar({
   }
 
   function getGuestFirstName(date) {
-    const { occupied, entry } = getEntryInfo(date);
-    if (!occupied || !entry?.note) return null;
-    return entry.note.split(' ')[0];
+    const { occupied, isSplit } = getEntryInfo(date);
+    if (!occupied) return null;
+    if (isSplit) {
+      const dep = occupancy.find((o) => isSameDay(date, parseDe(o.endDate)))?.note?.split(' ')[0];
+      const arr = occupancy.find((o) => isSameDay(date, parseDe(o.startDate)))?.note?.split(' ')[0];
+      if (dep && arr) return `${dep}/${arr}`;
+      return dep || arr || null;
+    }
+    const entry = getOccupancy(date, occupancy);
+    return entry?.note?.split(' ')[0] ?? null;
   }
 
   const cellSize = compact ? 'text-xs' : 'text-sm';
@@ -143,7 +151,9 @@ export default function MonthCalendar({
       </div>
       <div className="grid grid-cols-7 gap-x-0 gap-y-px">
         {weeks.flat().map((date, i) => {
-          const guestName = showGuestName && date ? getGuestFirstName(date) : null;
+          const guestName = date
+            ? (occupiedLabel && getEntryInfo(date).occupied ? occupiedLabel : (showGuestName ? getGuestFirstName(date) : null))
+            : null;
           return (
             <div
               key={date ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : `e${i}`}

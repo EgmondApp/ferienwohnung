@@ -3,7 +3,7 @@
 // Dates are stored as dd.MM.yyyy strings. Used by AdminLayout, OccupancyEditor, InquiryList.
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, ADMIN_KEY } from '../firebase';
 
 const COLLECTION = 'occupancy';
 
@@ -35,14 +35,16 @@ export function useOccupancy() {
     return unsub;
   }, []);
 
-  async function addOccupancy(startDate, endDate, note = '', email = '', phone = '') {
+  async function addOccupancy(startDate, endDate, note = '', email = '', phone = '', message = '') {
     await addDoc(collection(db, COLLECTION), {
       startDate,
       endDate,
       note,
       email,
       phone,
+      message,
       createdAt: serverTimestamp(),
+      _ak: ADMIN_KEY,
     });
   }
 
@@ -51,7 +53,7 @@ export function useOccupancy() {
   }
 
   async function updateOccupancyEntry(id, updates) {
-    await updateDoc(doc(db, COLLECTION, id), updates);
+    await updateDoc(doc(db, COLLECTION, id), { ...updates, _ak: ADMIN_KEY });
   }
 
   return { occupancy, loading, error, addOccupancy, removeOccupancy, updateOccupancyEntry };

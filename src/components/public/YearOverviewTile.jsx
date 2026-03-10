@@ -11,6 +11,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
   const [zoomedBase, setZoomedBase] = useState(null); // Date | null
   const [arrival, setArrival] = useState(null);
   const [departure, setDeparture] = useState(null);
+  const [conflictMsg, setConflictMsg] = useState(false);
 
   const months = Array.from({ length: 12 }, (_, i) => i);
 
@@ -43,11 +44,13 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
   }
 
   function handleDayClick(date) {
+    setConflictMsg(false);
     if (!arrival || (arrival && departure)) {
       setArrival(date);
       setDeparture(null);
     } else if (date > arrival) {
       if (hasConflictBetween(arrival, date)) {
+        setConflictMsg(true);
         setArrival(date);
         setDeparture(null);
       } else {
@@ -169,6 +172,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
                           occupancy={occupancy}
                           selectedRange={selectedRange}
                           compact
+                          occupiedLabel="Belegt"
                         />
                       </button>
                     ))}
@@ -246,10 +250,12 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
                   Zurücksetzen
                 </button>
               ) : (
-                <span className="text-xs text-anthracite/40">
-                  {zoomedBase !== null
-                    ? (!arrival ? 'Anreisetag wählen' : 'Abreisetag wählen')
-                    : 'Monat antippen und Zeitraum wählen'}
+                <span className={`text-xs ${conflictMsg ? 'text-primary font-medium' : 'text-anthracite/40'}`}>
+                  {conflictMsg
+                    ? 'Zeitraum enthält belegte Tage — neuen Anreisetag wählen'
+                    : zoomedBase !== null
+                      ? (!arrival ? 'Anreisetag wählen' : 'Abreisetag wählen')
+                      : 'Monat antippen und Zeitraum wählen'}
                 </span>
               )}
               <button

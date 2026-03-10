@@ -2,23 +2,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Occupancy: public read, authenticated write
-    // Since we use simple password auth (not Firebase Auth),
-    // we keep writes open but could add a secret field check.
-    // For a low-traffic family app, this is acceptable.
-    match /occupancy/{docId} {
-      allow read: if true;
-      allow write: if true;
-      // To restrict writes, add a shared secret:
-      // allow write: if request.resource.data.adminKey == 'YOUR_SECRET';
+    // Shared admin key — client-side guard against casual/automated abuse.
+    // Not a replacement for Firebase Auth, but prevents random writes.
+    // If compromised: change ADMIN_KEY in src/firebase.js AND this value.
+    function hasAdminKey() {
+      return request.resource.data._ak == 'egmond-fw-XK9m';
     }
 
-    // Inquiries: public create, authenticated read/update/delete
+    // Occupancy: public read, admin-only write.
+    // Delete requires _ak on the existing doc (all newly created docs have it).
+    match /occupancy/{docId} {
+      allow read: if true;
+      allow create, update: if hasAdminKey();
+      // Allow delete of legacy docs (no _ak) and new docs with correct key.
+      allow delete: if !('_ak' in resource.data) || resource.data._ak == 'egmond-fw-XK9m';
+    }
+
+    // Inquiries: guests can create (booking form), admin-only update/delete.
+    // Create validates required fields + message length (spam protection).
+    // Guest-created docs never carry _ak, so delete stays permissive (same as before).
     match /inquiries/{docId} {
       allow read: if true;
-      allow create: if true;
-      allow update, delete: if true;
-      // Same as above — add adminKey check for production
+      allow create: if
+        request.resource.data.name is string && request.resource.data.name.size() >= 2 &&
+        request.resource.data.email is string && request.resource.data.email.size() >= 5 &&
+        request.resource.data.arrival is string &&
+        request.resource.data.departure is string &&
+        (!('message' in request.resource.data) || request.resource.data.message.size() <= 2000);
+      allow update: if hasAdminKey();
+      allow delete: if !('_ak' in resource.data) || resource.data._ak == 'egmond-fw-XK9m';
     }
 
     // Settings: read-only
