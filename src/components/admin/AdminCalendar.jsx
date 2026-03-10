@@ -150,10 +150,47 @@ function PrintHalfYear({ year, months, occupancy }) {
   );
 }
 
-export default function AdminCalendar({ occupancy, loading, error, removeOccupancy }) {
+const DATE_RE = /^\d{2}\.\d{2}\.\d{4}$/;
+
+export default function AdminCalendar({ occupancy, loading, error, removeOccupancy, addOccupancy }) {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const months = Array.from({ length: 12 }, (_, i) => i);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({ name: '', arrival: '', departure: '', email: '', phone: '' });
+  const [addError, setAddError] = useState(null);
+  const [addSaving, setAddSaving] = useState(false);
+
+  function hasConflict(arrival, departure) {
+    const newStart = parseDe(arrival);
+    const newEnd = parseDe(departure);
+    return occupancy.some((o) => {
+      const start = parseDe(o.startDate);
+      const end = parseDe(o.endDate);
+      return start < newEnd && end > newStart;
+    });
+  }
+
+  async function handleAddOccupancy(e) {
+    e.preventDefault();
+    setAddError(null);
+    const { name, arrival, departure, email, phone } = addForm;
+    if (name.trim().length < 2) { setAddError('Name muss mindestens 2 Zeichen haben.'); return; }
+    if (!DATE_RE.test(arrival)) { setAddError('Anreise im Format TT.MM.JJJJ eingeben.'); return; }
+    if (!DATE_RE.test(departure)) { setAddError('Abreise im Format TT.MM.JJJJ eingeben.'); return; }
+    if (parseDe(departure) <= parseDe(arrival)) { setAddError('Abreise muss nach Anreise liegen.'); return; }
+    if (hasConflict(arrival, departure)) { setAddError('Zeitraum bereits belegt.'); return; }
+    setAddSaving(true);
+    try {
+      await addOccupancy(arrival, departure, name.trim(), email.trim(), phone.trim(), '');
+      setAddForm({ name: '', arrival: '', departure: '', email: '', phone: '' });
+      setShowAddForm(false);
+    } catch (err) {
+      console.error('handleAddOccupancy:', err);
+      setAddError('Fehler beim Speichern.');
+    }
+    setAddSaving(false);
+  }
 
   if (loading) return <div className="text-stone text-sm py-8">Lade Belegungsdaten...</div>;
   if (error) return <div className="text-primary text-sm py-8 bg-primary/5 border border-primary/20 rounded-lg px-4">{error}</div>;
@@ -178,16 +215,69 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
             >›</button>
           </div>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
-          </svg>
-          Drucken
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { setShowAddForm((v) => !v); setAddError(null); }}
+            className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Belegung
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-offwhite hover:border-anthracite/20 transition-colors text-anthracite/55 hover:text-anthracite"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0 1 10.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0 .229 2.523a1.125 1.125 0 0 1-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0 0 21 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 0 0-1.913-.247M6.34 18H5.25A2.25 2.25 0 0 1 3 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 0 1 1.913-.247m10.5 0a48.536 48.536 0 0 0-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5Zm-3 0h.008v.008H15V10.5Z" />
+            </svg>
+            Drucken
+          </button>
+        </div>
       </div>
+
+      {/* Add occupancy form — screen only */}
+      {showAddForm && (
+        <form onSubmit={handleAddOccupancy} className="bg-white rounded-xl border border-border shadow-sm p-5 mb-4 no-print">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+            <input
+              type="text" placeholder="Name *" value={addForm.name}
+              onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+              className="col-span-2 sm:col-span-1 px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+            />
+            <input
+              type="text" placeholder="Anreise TT.MM.JJJJ *" value={addForm.arrival}
+              onChange={(e) => setAddForm((f) => ({ ...f, arrival: e.target.value }))}
+              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+            />
+            <input
+              type="text" placeholder="Abreise TT.MM.JJJJ *" value={addForm.departure}
+              onChange={(e) => setAddForm((f) => ({ ...f, departure: e.target.value }))}
+              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+            />
+            <input
+              type="email" placeholder="E-Mail" value={addForm.email}
+              onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+            />
+            <input
+              type="tel" placeholder="Telefon" value={addForm.phone}
+              onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
+              className="px-3 py-2 bg-warm border border-border rounded-lg text-sm focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10"
+            />
+          </div>
+          {addError && <p className="text-sm text-primary mb-3">{addError}</p>}
+          <div className="flex items-center gap-2">
+            <button type="submit" disabled={addSaving} className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40">
+              {addSaving ? 'Speichern…' : 'Belegung eintragen'}
+            </button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="px-4 py-2 text-sm text-anthracite/50 hover:text-anthracite transition-colors">
+              Abbrechen
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Legend — screen only */}
       <CalendarLegend showSelection={false} className="mb-5 no-print" />
@@ -274,9 +364,9 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
                         </a>
                       )}
                       {o.phone && (
-                        <span className="flex items-center gap-1.5 text-anthracite/60">
+                        <a href={`tel:${o.phone}`} className="flex items-center gap-1.5 text-anthracite/60 hover:text-anthracite transition-colors">
                           <IconPhone />{o.phone}
-                        </span>
+                        </a>
                       )}
                     </div>
                   )}

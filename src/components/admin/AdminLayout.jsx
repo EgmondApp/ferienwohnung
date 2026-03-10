@@ -77,7 +77,7 @@ export default function AdminLayout({ onLogout, changePassword }) {
           <div className="h-14 flex items-center justify-between gap-4">
             <span className="font-serif text-lg text-white shrink-0">Egmond aan Zee</span>
             <div className="flex items-center gap-4 shrink-0">
-<a href="#/" className="text-sm text-white/40 hover:text-white/80 transition-colors hidden sm:block">← Gästeseite</a>
+<a href="#/" className="text-sm text-white/40 hover:text-white/80 transition-colors">← Gästeseite</a>
               <button onClick={() => setPwModalOpen(true)} className="text-sm text-white/40 hover:text-white/80 transition-colors">Passwort</button>
               <button onClick={onLogout} className="text-sm text-white/40 hover:text-white/80 transition-colors">Abmelden</button>
             </div>
@@ -95,6 +95,7 @@ export default function AdminLayout({ onLogout, changePassword }) {
           loading={occupancyHook.loading}
           error={occupancyHook.error}
           removeOccupancy={occupancyHook.removeOccupancy}
+          addOccupancy={occupancyHook.addOccupancy}
         />
       </main>
 
