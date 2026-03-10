@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { addMonths, subMonths, getMonth, getYear } from 'date-fns';
+import { addMonths, subMonths, getMonth, getYear, differenceInDays } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
 import { formatDeDisplay } from '../../utils/dateHelpers';
-import { isOccupied } from '../../utils/calendarHelpers';
+import { hasConflictBetween } from '../../utils/calendarHelpers';
 
 export default function DatePicker({ isOpen, onClose, occupancy, initialDate, onSelect }) {
   const [baseMonth, setBaseMonth] = useState(() => {
@@ -36,22 +36,14 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
   if (!isOpen) return null;
 
   const secondMonth = addMonths(baseMonth, 1);
-  const nights = arrival && departure ? Math.round((departure - arrival) / 86400000) : null;
-
-  function hasConflictBetween(start, end) {
-    const msDay = 86400000;
-    for (let d = new Date(start.getTime() + msDay); d < end; d = new Date(d.getTime() + msDay)) {
-      if (isOccupied(d, occupancy)) return true;
-    }
-    return false;
-  }
+  const nights = arrival && departure ? differenceInDays(departure, arrival) : null;
 
   function handleDayClick(date) {
     if (!arrival || (arrival && departure)) {
       setArrival(date);
       setDeparture(null);
     } else if (date > arrival) {
-      if (hasConflictBetween(arrival, date)) {
+      if (hasConflictBetween(arrival, date, occupancy)) {
         setArrival(date);
         setDeparture(null);
       } else {
@@ -131,12 +123,12 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
           <div className="hidden md:block relative">
             <button
               onClick={() => setBaseMonth((m) => subMonths(m, 1))}
-              className="absolute left-0 top-0 p-1 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none"
+              className="absolute left-0 top-0 p-2 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none"
               aria-label="Vorheriger Monat"
             >‹</button>
             <button
               onClick={() => setBaseMonth((m) => addMonths(m, 1))}
-              className="absolute right-0 top-0 p-1 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none"
+              className="absolute right-0 top-0 p-2 rounded hover:bg-offwhite transition-colors text-anthracite/50 hover:text-anthracite text-xl leading-none"
               aria-label="Nächster Monat"
             >›</button>
             <div className="grid grid-cols-2 gap-8 px-7">

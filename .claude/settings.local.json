@@ -9,7 +9,18 @@
       "Bash(shutdown /s /t 30)",
       "Bash(powershell -Command \"Stop-Computer -Force\")",
       "Bash(claude config:*)",
-      "Read(//c/Users/kilia/.claude/**)"
+      "Read(//c/Users/kilia/.claude/**)",
+      "Bash(claude auth:*)",
+      "Bash(claude whoami:*)",
+      "Bash(find /r/GitHub/ferienwohnung -name *firestore* -o -name *security* -o -name *rules*)",
+      "Bash(claude usage:*)",
+      "Bash(claude limits:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(where firebase:*)",
+      "Bash(firebase --version)",
+      "WebFetch(domain:www.schulferien.org)",
+      "WebFetch(domain:ferien-nrw.com)",
+      "WebSearch"
     ]
   }
 }

@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { differenceInDays } from 'date-fns';
 import { formatDe, formatDeDisplay } from '../../utils/dateHelpers';
 
 export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSubmit }) {
-  const nights = arrival && departure ? Math.round((departure - arrival) / 86400000) : null;
+  const nights = arrival && departure ? differenceInDays(departure, arrival) : null;
   const [form, setForm] = useState({ name: '', email: '', phone: '', guests: 2, message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -42,7 +43,7 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
   }
 
   const inputClass =
-    'w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors';
+    'w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-anthracite/40 focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors';
 
   return (
     <section id="anfrage" className="px-6 pt-5 pb-8 md:px-12 lg:px-20 max-w-7xl mx-auto">
@@ -72,12 +73,12 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
             <div className="flex items-center gap-4 mb-6 pb-5 border-b border-border text-sm flex-wrap">
               <div className="whitespace-nowrap">
                 <span className="text-anthracite/40">Anreise: </span>
-                <span className={`font-medium ${arrival ? 'text-anthracite' : 'text-stone'}`}>{arrival ? formatDeDisplay(arrival) : '–'}</span>
+                <span className={`font-medium ${arrival ? 'text-anthracite' : 'text-anthracite/40'}`}>{arrival ? formatDeDisplay(arrival) : '–'}</span>
               </div>
               <span className="text-anthracite/20">·</span>
               <div className="whitespace-nowrap">
                 <span className="text-anthracite/40">Abreise: </span>
-                <span className={`font-medium ${departure ? 'text-anthracite' : 'text-stone'}`}>{departure ? formatDeDisplay(departure) : '–'}</span>
+                <span className={`font-medium ${departure ? 'text-anthracite' : 'text-anthracite/40'}`}>{departure ? formatDeDisplay(departure) : '–'}</span>
               </div>
               {nights && (
                 <>

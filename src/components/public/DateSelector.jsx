@@ -1,3 +1,4 @@
+import { differenceInDays } from 'date-fns';
 import { formatDeDisplay } from '../../utils/dateHelpers';
 
 const IconCalendar = () => (
@@ -46,7 +47,7 @@ const MiniYearIcon = () => {
 };
 
 export default function DateSelector({ arrival, departure, onOpenDatePicker, onOpenCalendar }) {
-  const nights = arrival && departure ? Math.round((departure - arrival) / 86400000) : null;
+  const nights = arrival && departure ? differenceInDays(departure, arrival) : null;
   const hasRange = arrival && departure;
 
   return (

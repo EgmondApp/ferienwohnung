@@ -144,7 +144,7 @@ export default function MonthCalendar({
       )}
       <div className="grid grid-cols-7 gap-px mb-1">
         {WEEKDAY_HEADERS.map((d) => (
-          <div key={d} className={`text-center ${compact ? 'text-[10px]' : 'text-xs'} text-stone font-medium`}>
+          <div key={d} className={`text-center ${compact ? 'text-[10px]' : 'text-xs'} text-anthracite/40 font-medium`}>
             {d}
           </div>
         ))}

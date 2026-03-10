@@ -3,7 +3,7 @@ import { addMonths, subMonths, getMonth, getYear } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
 import { MONTH_NAMES, formatDeDisplay } from '../../utils/dateHelpers';
-import { isOccupied } from '../../utils/calendarHelpers';
+import { hasConflictBetween } from '../../utils/calendarHelpers';
 
 export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect }) {
   const currentYear = new Date().getFullYear();
@@ -35,21 +35,13 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
     setDeparture(null);
   }
 
-  function hasConflictBetween(start, end) {
-    const msDay = 86400000;
-    for (let d = new Date(start.getTime() + msDay); d < end; d = new Date(d.getTime() + msDay)) {
-      if (isOccupied(d, occupancy)) return true;
-    }
-    return false;
-  }
-
   function handleDayClick(date) {
     setConflictMsg(false);
     if (!arrival || (arrival && departure)) {
       setArrival(date);
       setDeparture(null);
     } else if (date > arrival) {
-      if (hasConflictBetween(arrival, date)) {
+      if (hasConflictBetween(arrival, date, occupancy)) {
         setConflictMsg(true);
         setArrival(date);
         setDeparture(null);

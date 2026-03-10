@@ -90,11 +90,11 @@
   }
 
   .cal-day--past {
-    @apply text-stone;
+    @apply text-anthracite/40;
   }
 
   .cal-day--disabled {
-    @apply text-stone cursor-not-allowed;
+    @apply text-anthracite/40 cursor-not-allowed;
   }
 
   /* Background highlight for holidays/bridge days */

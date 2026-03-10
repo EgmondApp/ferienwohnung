@@ -6,10 +6,10 @@ export default function CalendarLegend({ showSelection = true, className = '' })
         <span className="w-3 h-3 rounded-sm bg-primary/15 border border-primary/20" />Belegt
       </span>
       <span className="flex items-center gap-1.5">
-        <span className="w-3 h-3 rounded-sm overflow-hidden border border-primary/20" style={{ background: 'linear-gradient(to right, rgba(167,6,5,0.18) 50%, transparent 50%)' }} />Abreise
+        <span className="w-3 h-3 rounded-sm overflow-hidden border border-primary/20" style={{ background: 'linear-gradient(to right, rgba(167,6,5,0.14) 50%, transparent 50%)' }} />Abreise
       </span>
       <span className="flex items-center gap-1.5">
-        <span className="w-3 h-3 rounded-sm overflow-hidden border border-primary/20" style={{ background: 'linear-gradient(to right, transparent 50%, rgba(167,6,5,0.18) 50%)' }} />Anreise
+        <span className="w-3 h-3 rounded-sm overflow-hidden border border-primary/20" style={{ background: 'linear-gradient(to right, transparent 50%, rgba(167,6,5,0.14) 50%)' }} />Anreise
       </span>
       {showSelection && (
         <span className="flex items-center gap-1.5">

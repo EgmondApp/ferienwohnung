@@ -7,6 +7,7 @@ import Gallery from '../components/public/Gallery';
 import DatePicker from '../components/public/DatePicker';
 import InquiryForm from '../components/public/InquiryForm';
 import Footer from '../components/public/Footer';
+import InfoIcon from '../components/shared/InfoIcon';
 import { useOccupancy } from '../hooks/useOccupancy';
 import { useInquiries } from '../hooks/useInquiries';
 
@@ -33,7 +34,7 @@ export default function PublicPage() {
 
   return (
     <div className="min-h-screen bg-warm">
-      <Header />
+      <Header onInfoClick={() => setGasteInfoOpen(true)} />
       {occupancyError && (
         <div className="px-6 py-2 bg-primary/10 border-b border-primary/20 text-center text-sm text-primary">
           Belegungsdaten konnten nicht geladen werden. Bitte Seite neu laden.
@@ -76,18 +77,19 @@ export default function PublicPage() {
           bis zu vier Personen — mit einem eigenen Schlafzimmer und zwei komfortablen
           Ausziehbetten im Wohnzimmer.
         </p>
-        <button
-          onClick={() => setGasteInfoOpen(true)}
-          className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/40 bg-gold/10 hover:bg-gold/15 text-xs text-anthracite/70 hover:text-anthracite transition-colors"
-        >
-          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-          </svg>
-          Informationen & Anreise
-        </button>
       </section>
 
       <Gallery />
+
+      <div className="px-6 py-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <button
+          onClick={() => setGasteInfoOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl border border-border bg-offwhite hover:bg-warm transition-colors text-anthracite/80 hover:text-anthracite text-sm font-medium"
+        >
+          <InfoIcon />
+          Informationen zur Wohnung und Anreise
+        </button>
+      </div>
 
       <InquiryForm
         arrival={arrival}

@@ -89,3 +89,15 @@ export function getOccupancy(date, occupancyList) {
 export function isOccupied(date, occupancyList) {
   return getOccupancy(date, occupancyList) !== null;
 }
+
+/**
+ * Check if any day between start (exclusive) and end (exclusive) is occupied.
+ * Used by DatePicker and YearOverviewTile to detect booking conflicts in a selected range.
+ */
+export function hasConflictBetween(start, end, occupancyList) {
+  const msDay = 86400000;
+  for (let d = new Date(start.getTime() + msDay); d < end; d = new Date(d.getTime() + msDay)) {
+    if (isOccupied(d, occupancyList)) return true;
+  }
+  return false;
+}

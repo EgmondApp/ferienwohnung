@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import InfoIcon from '../shared/InfoIcon';
 
 const SLIDES = [
   { src: './images/hero.jpg',        alt: 'Blick auf den Strand von Egmond aan Zee', position: 'center 75%' },
@@ -7,7 +8,7 @@ const SLIDES = [
   { src: './images/interior-2.jpg',  alt: 'Schlafzimmer',                            position: 'center 40%' },
 ];
 
-export default function Header() {
+export default function Header({ onInfoClick }) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function Header() {
           key={slide.src}
           src={slide.src}
           alt={slide.alt}
+          loading={i === 0 ? 'eager' : 'lazy'}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
           style={{ objectPosition: slide.position, opacity: i === active ? 1 : 0 }}
         />
@@ -42,18 +44,32 @@ export default function Header() {
         </p>
       </div>
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-4 right-6 z-10 flex gap-1.5">
-        {SLIDES.map((_, i) => (
+      {/* Info button + Dot indicators */}
+      <div className="absolute bottom-4 right-6 z-10 flex flex-col items-end gap-2">
+        {onInfoClick && (
           <button
-            key={i}
-            onClick={() => setActive(i)}
-            aria-label={`Bild ${i + 1}`}
-            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-              i === active ? 'bg-white w-4' : 'bg-white/40 hover:bg-white/70'
-            }`}
-          />
-        ))}
+            onClick={onInfoClick}
+            aria-label="Informationen & Anreise"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/25 hover:bg-black/40 backdrop-blur-sm text-white/90 text-xs transition-colors"
+          >
+            <InfoIcon className="w-3.5 h-3.5" />
+            Info
+          </button>
+        )}
+        <div className="flex gap-0.5">
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              aria-label={`Bild ${i + 1}`}
+              className="p-1.5 flex items-center justify-center"
+            >
+              <span className={`block h-2 rounded-full transition-all duration-300 ${
+                i === active ? 'w-5 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+              }`} />
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   );

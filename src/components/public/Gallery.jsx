@@ -92,7 +92,7 @@ export default function Gallery() {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <button onClick={() => setActiveGallery(null)} className="absolute top-4 right-4 text-white/80 hover:text-white text-3xl z-10 w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors" aria-label="Schließen">×</button>
+          <button onClick={() => setActiveGallery(null)} className="absolute top-5 right-5 text-white/80 hover:text-white text-3xl z-10 w-12 h-12 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors" aria-label="Schließen">×</button>
 
           <button
             onClick={(e) => { e.stopPropagation(); setActiveGallery((a) => a ? { ...a, index: (a.index - 1 + a.gallery.images.length) % a.gallery.images.length } : null); }}
@@ -151,7 +151,7 @@ function GalleryTile({ gallery, onOpen }) {
           </div>
           {/* 4 thumbnails in 2x2 */}
           {thumbs.map((img, i) => (
-            <div key={img.alt} className="overflow-hidden bg-stone/20">
+            <div key={img.src} className="overflow-hidden bg-stone/20">
               <img
                 src={img.src}
                 alt={img.alt}

@@ -20,11 +20,11 @@ export default function GasteInfoModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-anthracite/60 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-warm rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col" role="dialog" aria-label="Gäste-Info" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-warm rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col" role="dialog" aria-label="Informationen" onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <span className="font-serif text-lg text-anthracite">Gäste-Info</span>
+          <span className="font-serif text-lg text-anthracite">Informationen</span>
           <div className="flex items-center gap-4">
             <a href={`${baseUrl}#/info`} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs font-medium rounded-full border border-border bg-offwhite hover:bg-warm hover:border-anthracite/20 text-anthracite/60 hover:text-anthracite transition-colors">
               Drucken / Vollansicht ↗
@@ -55,7 +55,7 @@ export default function GasteInfoModal({ isOpen, onClose }) {
             <InfoRow icon="🧺" label="Bettzeug">Bettzeug und Handtücher nicht vergessen.</InfoRow>
             <InfoRow icon="🛋️" label="Betten">Ausziehbetten unter der Sitzlandschaft. Decken &amp; Kissen in den Bettkästen im Schlafzimmer.</InfoRow>
             <InfoRow icon="☀️" label="Markise">Elektrisch – Stecker an der Balkontür anschalten. Fernbedienung im Regal ganz links.</InfoRow>
-            <InfoRow icon="🗑️" label="Müll">Abfallpass im Flurregal. 30L-Sack ca.&nbsp;0,55&nbsp;€ · 60L-Sack ca.&nbsp;1,10&nbsp;€. Papier, Glas, PMD kostenfrei.</InfoRow>
+            <InfoRow icon="🗑️" label="Müll">Abfallpass im Flurregal. 30L-Sack ca.&nbsp;0,55&nbsp;€ · 60L-Sack ca.&nbsp;1,10&nbsp;€. Papier, Glas, PMD kostenfrei. Die Kosten werden nicht weiterberechnet – wir freuen uns trotzdem, wenn ihr sparsam damit umgeht.</InfoRow>
             <InfoRow icon="🧹" label="Endreinigung">Gereinigt übergeben oder ca.&nbsp;70&nbsp;€ über die Hausmeister buchen (Stand 2025).</InfoRow>
           </Card>
 

@@ -4,7 +4,7 @@ export default function InfoPage() {
       {/* Header */}
       <div className="bg-anthracite text-white px-6 py-5 no-print">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <span className="font-serif text-lg">Egmond aan Zee — Gäste-Info</span>
+          <span className="font-serif text-lg">Egmond aan Zee — Informationen</span>
           <div className="flex gap-4 text-sm text-white/60">
             <button onClick={() => window.print()} className="hover:text-white transition-colors">
               Drucken
