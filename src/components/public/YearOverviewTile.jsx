@@ -172,7 +172,6 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
                           occupancy={occupancy}
                           selectedRange={selectedRange}
                           compact
-                          occupiedLabel="Belegt"
                         />
                       </button>
                     ))}

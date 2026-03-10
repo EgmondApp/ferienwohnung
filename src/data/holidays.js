@@ -71,8 +71,8 @@ export const schoolHolidays = {
     { start: '22.12.2025', end: '06.01.2026', name: 'Weihnachtsferien' },
     { start: '30.03.2026', end: '11.04.2026', name: 'Osterferien' },
     { start: '26.05.2026', end: '26.05.2026', name: 'Pfingstferien' },
-    { start: '29.06.2026', end: '11.08.2026', name: 'Sommerferien' },
-    { start: '12.10.2026', end: '24.10.2026', name: 'Herbstferien' },
+    { start: '20.07.2026', end: '01.09.2026', name: 'Sommerferien' },
+    { start: '17.10.2026', end: '31.10.2026', name: 'Herbstferien' },
     { start: '23.12.2026', end: '06.01.2027', name: 'Weihnachtsferien' },
   ],
   2027: [
@@ -81,13 +81,13 @@ export const schoolHolidays = {
     { start: '18.05.2027', end: '18.05.2027', name: 'Pfingstferien' },
     { start: '19.07.2027', end: '31.08.2027', name: 'Sommerferien' },
     { start: '23.10.2027', end: '06.11.2027', name: 'Herbstferien' },
-    { start: '24.12.2027', end: '31.12.2027', name: 'Weihnachtsferien' },
+    { start: '24.12.2027', end: '08.01.2028', name: 'Weihnachtsferien' },
   ],
   2028: [
     { start: '10.04.2028', end: '22.04.2028', name: 'Osterferien' },
     { start: '06.06.2028', end: '06.06.2028', name: 'Pfingstferien' },
-    { start: '03.07.2028', end: '15.08.2028', name: 'Sommerferien' },
-    { start: '09.10.2028', end: '21.10.2028', name: 'Herbstferien' },
+    { start: '10.07.2028', end: '22.08.2028', name: 'Sommerferien' },
+    { start: '23.10.2028', end: '04.11.2028', name: 'Herbstferien' },
     { start: '21.12.2028', end: '05.01.2029', name: 'Weihnachtsferien' },
   ],
 };
