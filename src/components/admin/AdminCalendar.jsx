@@ -191,10 +191,10 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
       </div>
 
       {/* Legend — screen only */}
-      <CalendarLegend className="mb-5 no-print" />
+      <CalendarLegend showSelection={false} className="mb-5 no-print" />
 
       {/* Screen: month grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 no-print">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2 no-print">
         {months.map((month) => (
           <div key={month} className="bg-white rounded-xl p-4 border border-border shadow-sm">
             <MonthCalendar

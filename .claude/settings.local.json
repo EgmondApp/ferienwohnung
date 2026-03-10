@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:egmondapp.github.io)",
+      "Bash(npm run:*)",
+      "Bash(ls -t \"R:/GitHub/ferienwohnung/\"*.png \"R:/GitHub/ferienwohnung/\"*.jpg)",
+      "Bash(ls -t \"C:/Users/kilia/Pictures/Screenshots/\"*.png)",
+      "Bash(powershell -Command \"Get-ChildItem ''C:\\\\Users\\\\kilia\\\\Pictures\\\\Screenshots\\\\'' | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName\")",
+      "Bash(shutdown /s /t 30)",
+      "Bash(powershell -Command \"Stop-Computer -Force\")"
+    ]
+  }
+}

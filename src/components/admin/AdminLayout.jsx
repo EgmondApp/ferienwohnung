@@ -13,7 +13,7 @@ function PasswordModal({ changePassword, onClose }) {
   const [success, setSuccess] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const inputClass = 'w-full px-3 py-2 bg-white border border-border rounded text-sm text-anthracite focus:outline-none focus:border-anthracite/40 transition-colors';
+  const inputClass = 'w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors';
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -30,7 +30,7 @@ function PasswordModal({ changePassword, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-anthracite/60 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-warm rounded-xl shadow-2xl w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-warm rounded-2xl shadow-2xl w-full max-w-sm" role="dialog" aria-label="Passwort ändern" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="font-serif text-base text-anthracite">Passwort ändern</span>
           <button onClick={onClose} className="text-anthracite/40 hover:text-anthracite text-2xl leading-none w-8 h-8 flex items-center justify-center">×</button>
@@ -41,19 +41,19 @@ function PasswordModal({ changePassword, onClose }) {
           ) : (
             <>
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1">Aktuelles Passwort</label>
+                <label className="block text-xs text-anthracite/50 mb-1.5">Aktuelles Passwort</label>
                 <input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} className={inputClass} autoFocus required />
               </div>
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1">Neues Passwort</label>
+                <label className="block text-xs text-anthracite/50 mb-1.5">Neues Passwort</label>
                 <input type="password" value={next} onChange={(e) => setNext(e.target.value)} className={inputClass} required />
               </div>
               <div>
-                <label className="block text-xs text-anthracite/50 mb-1">Wiederholen</label>
+                <label className="block text-xs text-anthracite/50 mb-1.5">Wiederholen</label>
                 <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputClass} required />
               </div>
-              {error && <p className="text-xs text-primary">{error}</p>}
-              <button type="submit" disabled={saving} className="w-full py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded transition-colors disabled:opacity-50">
+              {error && <p className="text-primary text-sm border border-primary/20 bg-primary/5 rounded px-3 py-2">{error}</p>}
+              <button type="submit" disabled={saving} className="w-full py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40">
                 {saving ? 'Speichern…' : 'Passwort speichern'}
               </button>
             </>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { formatDe, formatDeDisplay } from '../../utils/dateHelpers';
 
 export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSubmit }) {
+  const nights = arrival && departure ? Math.round((departure - arrival) / 86400000) : null;
   const [form, setForm] = useState({ name: '', email: '', phone: '', guests: 2, message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -35,7 +36,7 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
   }
 
   const inputClass =
-    'w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/15 transition-colors';
+    'w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors';
 
   return (
     <section id="anfrage" className="px-6 pt-5 pb-8 md:px-12 lg:px-20 max-w-7xl mx-auto">
@@ -65,6 +66,14 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
                 <span className="text-anthracite/40">Abreise: </span>
                 <span className={`font-medium ${departure ? 'text-anthracite' : 'text-stone'}`}>{departure ? formatDeDisplay(departure) : '–'}</span>
               </div>
+              {nights && (
+                <>
+                  <span className="text-anthracite/20">·</span>
+                  <span className="whitespace-nowrap text-anthracite/60 flex items-center gap-1">
+                    <span>🌙</span><span className="font-medium text-anthracite">{nights} Nächte</span>
+                  </span>
+                </>
+              )}
               <button
                 type="button"
                 onClick={onOpenDatePicker}
@@ -121,7 +130,7 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
               <button
                 type="submit"
                 disabled={sending}
-                className="w-full md:w-auto px-8 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded transition-colors disabled:opacity-50"
+                className="w-full md:w-auto px-8 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors disabled:opacity-40"
               >
                 {sending ? 'Wird gesendet…' : 'Anfrage senden'}
               </button>

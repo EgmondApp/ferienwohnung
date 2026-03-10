@@ -81,8 +81,8 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
   const selectedRange = { start: arrival, end: departure };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-anthracite/50 px-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-anthracite/60 px-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col" role="dialog" aria-label="Reisezeitraum wählen" onClick={(e) => e.stopPropagation()}>
 
         {/* Header — merged title + selection summary */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
@@ -158,7 +158,7 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
           <button
             onClick={handleConfirm}
             disabled={!arrival || !departure}
-            className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-35 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Zeitraum übernehmen
           </button>

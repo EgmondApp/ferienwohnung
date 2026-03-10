@@ -50,7 +50,8 @@ export default function DateSelector({ arrival, departure, onOpenDatePicker, onO
   const hasRange = arrival && departure;
 
   return (
-    <section className="px-6 pt-5 pb-3 md:px-12 lg:px-20 max-w-7xl mx-auto">
+    <section className="px-6 pt-8 pb-3 md:px-12 lg:px-20 max-w-7xl mx-auto">
+      <h2 className="font-serif text-xl text-anthracite/70 mb-3">Verfügbarkeit prüfen</h2>
 
       {/* Combined search bar */}
       <div className="bg-offwhite border border-border rounded-xl overflow-hidden shadow-sm">
@@ -61,10 +62,10 @@ export default function DateSelector({ arrival, departure, onOpenDatePicker, onO
             onClick={onOpenDatePicker}
             className="flex-1 px-5 py-3.5 text-left hover:bg-warm transition-colors flex items-center gap-3"
           >
-            <span className={arrival ? 'text-primary' : 'text-stone'}><IconCalendar /></span>
+            <span className={arrival ? 'text-primary' : 'text-primary/40'}><IconCalendar /></span>
             <div>
               <div className="text-[11px] text-anthracite/45 mb-0.5 uppercase tracking-wide">Anreise</div>
-              <div className={`text-sm font-medium ${arrival ? 'text-anthracite' : 'text-anthracite/35'}`}>
+              <div className={`text-sm font-medium ${arrival ? 'text-anthracite' : 'text-primary/50 italic'}`}>
                 {arrival ? formatDeDisplay(arrival) : 'Datum wählen'}
               </div>
             </div>
@@ -79,34 +80,28 @@ export default function DateSelector({ arrival, departure, onOpenDatePicker, onO
             onClick={onOpenDatePicker}
             className="flex-1 px-5 py-3.5 text-left hover:bg-warm transition-colors flex items-center gap-3"
           >
-            <span className={departure ? 'text-primary' : 'text-stone'}><IconCalendar /></span>
+            <span className={departure ? 'text-primary' : 'text-primary/40'}><IconCalendar /></span>
             <div>
               <div className="text-[11px] text-anthracite/45 mb-0.5 uppercase tracking-wide">Abreise</div>
-              <div className={`text-sm font-medium ${departure ? 'text-anthracite' : 'text-anthracite/35'}`}>
+              <div className={`text-sm font-medium ${departure ? 'text-anthracite' : 'text-primary/50 italic'}`}>
                 {departure ? formatDeDisplay(departure) : 'Datum wählen'}
               </div>
             </div>
           </button>
 
-          {/* CTA */}
-          <div className="p-3 sm:pl-0 sm:pr-3 sm:py-3 flex items-center">
-            {hasRange ? (
+          {/* CTA — only shown when range is selected */}
+          {hasRange && (
+            <div className="p-3 sm:pl-0 sm:pr-3 sm:py-3 flex items-center">
               <button
                 onClick={onOpenDatePicker}
-                className="w-full sm:w-auto sm:h-10 px-5 py-2.5 sm:py-0 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2"
+                className="w-full sm:w-auto px-4 py-2 text-sm text-anthracite/60 hover:text-anthracite border border-border bg-offwhite hover:bg-warm rounded-lg transition-colors whitespace-nowrap flex items-center gap-1.5"
               >
-                <span>{nights} Nächte</span>
-                <span className="opacity-70 text-xs">✓</span>
+                <span className="text-anthracite/40">🌙</span>
+                <span className="font-medium text-anthracite">{nights}</span>
+                <span>Nächte</span>
               </button>
-            ) : (
-              <button
-                onClick={onOpenDatePicker}
-                className="w-full sm:w-auto sm:h-10 px-5 py-2.5 sm:py-0 border border-primary text-primary hover:bg-primary hover:text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap"
-              >
-                Zeitraum wählen
-              </button>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Divider before Jahresübersicht — desktop only */}
           <div className="hidden sm:block w-px bg-border my-3" />

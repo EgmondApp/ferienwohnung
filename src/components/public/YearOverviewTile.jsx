@@ -89,7 +89,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
           onClick={close}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col" role="dialog" aria-label="Jahresübersicht"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -109,6 +109,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
                       onClick={() => setYear((y) => y - 1)}
                       disabled={year <= currentYear}
                       className="px-2 py-1 text-sm border border-border rounded hover:bg-offwhite disabled:opacity-30 transition-colors"
+                      aria-label="Vorjahr"
                     >
                       ←
                     </button>
@@ -116,6 +117,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
                     <button
                       onClick={() => setYear((y) => y + 1)}
                       className="px-2 py-1 text-sm border border-border rounded hover:bg-offwhite transition-colors"
+                      aria-label="Nächstes Jahr"
                     >
                       →
                     </button>
@@ -147,14 +149,14 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
 
             {/* Content */}
             <div className="overflow-auto p-6 flex-1">
-              <CalendarLegend showSelection={hasSelection} className="mb-4" />
+              <CalendarLegend className="mb-4" />
 
               {zoomedBase === null ? (
                 <>
                   <p className="text-xs text-anthracite/40 mb-4">
                     Monat antippen zum Vergrößern — Zeitraum direkt im Kalender wählen
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2">
                     {months.map((month) => (
                       <button
                         key={month}
@@ -253,7 +255,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
               <button
                 onClick={handleConfirm}
                 disabled={!arrival || !departure}
-                className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Zeitraum übernehmen
               </button>

@@ -73,7 +73,7 @@ export default function PublicPage() {
         </p>
         <button
           onClick={() => setGasteInfoOpen(true)}
-          className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-offwhite hover:bg-warm text-xs text-anthracite/55 hover:text-anthracite/80 transition-colors"
+          className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gold/40 bg-gold/10 hover:bg-gold/15 text-xs text-anthracite/70 hover:text-anthracite transition-colors"
         >
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />

@@ -34,7 +34,7 @@ export default function LoginGate({ onLogin }) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-1 focus:ring-anthracite/10 transition-colors"
+                className="w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors"
                 placeholder="Passwort eingeben"
                 autoFocus
               />
@@ -47,7 +47,7 @@ export default function LoginGate({ onLogin }) {
             <button
               type="submit"
               disabled={checking || !password}
-              className="w-full px-4 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded transition-colors disabled:opacity-40"
+              className="w-full px-4 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40"
             >
               {checking ? 'Prüfe…' : 'Anmelden'}
             </button>
