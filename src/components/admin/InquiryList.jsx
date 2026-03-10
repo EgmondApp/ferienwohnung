@@ -178,7 +178,7 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
                 )}
 
                 {/* Actions */}
-                {!isGebucht && (
+                {!isGebucht ? (
                   <div className="pt-1">
                     {errorId === inquiry.id && (
                       <p className="text-sm text-primary font-medium mb-2">
@@ -200,6 +200,13 @@ export default function InquiryList({ inquiries, loading, error, deleteInquiry, 
                       </button>
                     </div>
                   </div>
+                ) : (
+                  <button
+                    onClick={() => handleReject(inquiry)}
+                    className="text-xs text-primary/60 hover:text-primary transition-colors underline underline-offset-2 mt-1"
+                  >
+                    Anfrage löschen
+                  </button>
                 )}
               </div>
             );
