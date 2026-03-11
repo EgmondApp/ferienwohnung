@@ -58,15 +58,23 @@ export default function MonthCalendar({
     if (isWeekend(date) && !occupied && !isUserSelected) classes.push('cal-day--weekend');
 
     if (isUserArrival) {
-      classes.push('cal-day--arrival');
+      if (isDeparture || isSplit) {
+        classes.push('cal-day--departure-occ-arrival-user');
+      } else {
+        classes.push(special.isSpecial ? 'cal-day--arrival-special' : 'cal-day--arrival');
+      }
     } else if (isUserDeparture) {
-      classes.push('cal-day--departure');
+      if (isArrival || isSplit) {
+        classes.push('cal-day--arrival-occ-departure-user');
+      } else {
+        classes.push(special.isSpecial ? 'cal-day--departure-special' : 'cal-day--departure');
+      }
     } else if (isInRange) {
       classes.push('cal-day--selected');
     } else if (occupied) {
-      if (isSplit) classes.push('cal-day--occ-split');
-      else if (isArrival) classes.push('cal-day--occ-arrival');
-      else if (isDeparture) classes.push('cal-day--occ-departure');
+      if (isSplit) classes.push(special.isSpecial ? 'cal-day--occ-split-special' : 'cal-day--occ-split');
+      else if (isArrival) classes.push(special.isSpecial ? 'cal-day--occ-arrival-special' : 'cal-day--occ-arrival');
+      else if (isDeparture) classes.push(special.isSpecial ? 'cal-day--occ-departure-special' : 'cal-day--occ-departure');
       else classes.push('cal-day--occupied');
     } else if (!past) {
       classes.push('cal-day--free');
@@ -75,6 +83,10 @@ export default function MonthCalendar({
     // Special only when not selected/occupied
     if (special.isSpecial && !isUserSelected && !occupied) {
       classes.push('cal-day--special');
+    }
+    // Gold underline indicator — also when occupied
+    if (special.isSpecial && !isUserSelected) {
+      classes.push('cal-day--special-indicator');
     }
 
     // Cursor
@@ -119,9 +131,50 @@ export default function MonthCalendar({
     }
   }
 
-  function getGuestFirstName(date) {
-    const { occupied, isSplit } = getEntryInfo(date);
-    if (!occupied) return null;
+  // For each week row, compute which cell index (0-6) should show the guest name label.
+  // The name is shown centered on the occupied run within that row.
+  function getNameCellIndices() {
+    if (!showGuestName && !occupiedLabel) return new Set();
+    const result = new Set();
+    weeks.forEach((week) => {
+      // Group consecutive occupied cells by entry id (or note) into runs
+      let runStart = null;
+      let runEnd = null;
+      let runEntry = null;
+      function flushRun() {
+        if (runStart !== null && runEnd !== null) {
+          const mid = Math.floor((runStart + runEnd) / 2);
+          result.add(`${week[mid]?.getFullYear()}-${week[mid]?.getMonth()}-${week[mid]?.getDate()}`);
+        }
+        runStart = null; runEnd = null; runEntry = null;
+      }
+      week.forEach((date, col) => {
+        if (!date) { flushRun(); return; }
+        const { occupied, isArrival, isDeparture, isSplit } = getEntryInfo(date);
+        // Only full occupied cells contribute to the name label (not half-day edges)
+        const fullOcc = occupied && !isArrival && !isDeparture && !isSplit;
+        if (fullOcc) {
+          const entry = getOccupancy(date, occupancy);
+          const key = entry?.id ?? entry?.note ?? 'occ';
+          if (runEntry === key) {
+            runEnd = col;
+          } else {
+            flushRun();
+            runStart = col;
+            runEnd = col;
+            runEntry = key;
+          }
+        } else {
+          flushRun();
+        }
+      });
+      flushRun();
+    });
+    return result;
+  }
+
+  function getGuestName(date) {
+    const { isSplit } = getEntryInfo(date);
     if (isSplit) {
       const dep = occupancy.find((o) => isSameDay(date, parseDe(o.endDate)))?.note?.split(' ')[0];
       const arr = occupancy.find((o) => isSameDay(date, parseDe(o.startDate)))?.note?.split(' ')[0];
@@ -132,6 +185,7 @@ export default function MonthCalendar({
     return entry?.note?.split(' ')[0] ?? null;
   }
 
+  const nameCellIndices = getNameCellIndices();
   const cellSize = compact ? 'text-xs' : 'text-sm';
   const headerSize = compact ? 'text-sm' : 'text-base';
 
@@ -151,21 +205,23 @@ export default function MonthCalendar({
       </div>
       <div className="grid grid-cols-7 gap-x-0 gap-y-px">
         {weeks.flat().map((date, i) => {
-          const guestName = date
-            ? (occupiedLabel && getEntryInfo(date).occupied ? occupiedLabel : (showGuestName ? getGuestFirstName(date) : null))
+          const dateKey = date ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : null;
+          const showName = dateKey && nameCellIndices.has(dateKey);
+          const label = showName
+            ? (occupiedLabel ?? getGuestName(date))
             : null;
           return (
             <div
-              key={date ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : `e${i}`}
+              key={dateKey ?? `e${i}`}
               className={date ? getDayClasses(date) : 'cal-day'}
               title={date ? getTooltip(date) : ''}
               onClick={() => handleClick(date)}
             >
               {date ? (
-                guestName ? (
+                label ? (
                   <div className="flex flex-col items-center leading-tight">
                     <span className={cellSize}>{getDate(date)}</span>
-                    <span className="text-[7px] leading-none opacity-80 truncate max-w-full px-0.5">{guestName}</span>
+                    <span className="text-[7px] leading-none opacity-80 truncate max-w-full px-0.5">{label}</span>
                   </div>
                 ) : (
                   <span className={cellSize}>{getDate(date)}</span>

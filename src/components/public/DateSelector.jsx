@@ -1,5 +1,6 @@
 import { differenceInDays } from 'date-fns';
 import { formatDeDisplay } from '../../utils/dateHelpers';
+import ShareButton from '../shared/ShareButton';
 
 const IconCalendar = () => (
   <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -52,7 +53,10 @@ export default function DateSelector({ arrival, departure, onOpenDatePicker, onO
 
   return (
     <section className="px-6 pt-8 pb-3 md:px-12 lg:px-20 max-w-7xl mx-auto">
-      <h2 className="font-serif text-xl text-anthracite/70 mb-3">Verfügbarkeit prüfen</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-serif text-xl text-anthracite/70">Verfügbarkeit prüfen</h2>
+        <ShareButton />
+      </div>
 
       {/* Combined search bar */}
       <div className="bg-offwhite border border-border rounded-xl overflow-hidden shadow-sm">

@@ -5,7 +5,7 @@ const SLIDES = [
   { src: './images/hero.jpg',        alt: 'Blick auf den Strand von Egmond aan Zee', position: 'center 75%' },
   { src: './images/exterior-1.jpg',  alt: 'Balkon mit Meerblick',                    position: 'center 50%' },
   { src: './images/exterior-8.jpg',  alt: 'Umgebung Egmond aan Zee',                 position: 'center 50%' },
-  { src: './images/interior-2.jpg',  alt: 'Schlafzimmer',                            position: 'center 40%' },
+  { src: './images/interior-3.jpg',  alt: 'Schlafzimmer',                            position: 'center 75%' },
 ];
 
 export default function Header({ onInfoClick }) {

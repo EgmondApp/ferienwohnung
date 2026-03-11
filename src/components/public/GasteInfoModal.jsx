@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import ShareButton from '../shared/ShareButton';
 
 export default function GasteInfoModal({ isOpen, onClose }) {
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function GasteInfoModal({ isOpen, onClose }) {
         {/* Content */}
         <div className="overflow-auto px-6 py-5 space-y-4 flex-1">
 
-          <Card icon="📍" title="Adresse">
+          <Card icon="📍" title="Adresse" action={<ShareButton />}>
             <p className="font-medium">Kennedyboulevard 604</p>
             <p>1931 XM Egmond aan Zee</p>
             <a href="https://maps.google.com/?q=Kennedyboulevard+604,+1931+XM+Egmond+aan+Zee" target="_blank" rel="noopener noreferrer"
@@ -54,7 +55,7 @@ export default function GasteInfoModal({ isOpen, onClose }) {
             <InfoRow icon="🔄" label="Check-in / Check-out">Wechsel ab 12 Uhr (oder nach Absprache). Abreise bis 12 Uhr, Anreise ab 12 Uhr.</InfoRow>
             <InfoRow icon="🧺" label="Bettzeug">Bettzeug und Handtücher nicht vergessen.</InfoRow>
             <InfoRow icon="🛋️" label="Betten">Ausziehbetten unter der Sitzlandschaft. Decken &amp; Kissen in den Bettkästen im Schlafzimmer.</InfoRow>
-            <InfoRow icon="☀️" label="Markise">Elektrisch – Stecker an der Balkontür anschalten. Fernbedienung im Regal ganz links.</InfoRow>
+            <InfoRow icon="☀️" label="Markise">Elektrisch – Stecker an der Balkontür anschalten. Fernbedienung im Regal ganz links. Bei Windgefahr unbedingt einfahren!</InfoRow>
             <InfoRow icon="🗑️" label="Müll">Abfallpass im Flurregal. 30L-Sack ca.&nbsp;0,55&nbsp;€ · 60L-Sack ca.&nbsp;1,10&nbsp;€. Papier, Glas, PMD kostenfrei. Die Kosten werden nicht weiterberechnet – wir freuen uns trotzdem, wenn ihr sparsam damit umgeht.</InfoRow>
             <InfoRow icon="🧹" label="Endreinigung">Gereinigt übergeben oder ca.&nbsp;70&nbsp;€ über die Hausmeister buchen (Stand 2025).</InfoRow>
           </Card>
@@ -86,11 +87,13 @@ export default function GasteInfoModal({ isOpen, onClose }) {
   );
 }
 
-function Card({ icon, title, children }) {
+function Card({ icon, title, children, action }) {
   return (
     <div className="bg-offwhite border border-border rounded-xl p-4">
       <h3 className="font-serif text-base text-anthracite mb-2 flex items-center gap-2">
-        <span>{icon}</span>{title}
+        <span>{icon}</span>
+        <span className="flex-1">{title}</span>
+        {action}
       </h3>
       <div className="space-y-2 text-sm text-anthracite/80 leading-relaxed">{children}</div>
     </div>

@@ -74,7 +74,7 @@ export default function InfoPage() {
             Bettzeug und Handtücher nicht vergessen.
           </InfoRow>
           <InfoRow icon="☀️" label="Markise">
-            Elektrisch – Stecker an der Balkontür anschalten. Fernbedienung im Regal der Sitzlandschaft ganz links.
+            Elektrisch – Stecker an der Balkontür anschalten. Fernbedienung im Regal der Sitzlandschaft ganz links. Bei Windgefahr unbedingt einfahren!
           </InfoRow>
           <InfoRow icon="🗑️" label="Müll">
             Für den Restmüll den Abfallpass im Flurregal nutzen. Die Gebühren übernehmen wir – achtet bitte dennoch auf die Kosten pro Einwurf: 30L-Sack ca.&nbsp;0,55&nbsp;€ · 60L-Sack ca.&nbsp;1,10&nbsp;€. Papier, Glas und Plastik (PMD) an den Sammelstellen kostenfrei.

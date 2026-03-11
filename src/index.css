@@ -52,9 +52,31 @@
     color: white !important;
     border-radius: 0 !important;
   }
+  .cal-day--arrival-special {
+    background: linear-gradient(to right, rgba(196,169,77,0.28) 50%, #0566A8 50%) !important;
+    color: white !important;
+    border-radius: 0 !important;
+  }
   /* User selection: Departure — left half blue */
   .cal-day--departure {
     background: linear-gradient(to right, #0566A8 50%, transparent 50%) !important;
+    color: white !important;
+    border-radius: 0 !important;
+  }
+  .cal-day--departure-special {
+    background: linear-gradient(to right, #0566A8 50%, rgba(196,169,77,0.28) 50%) !important;
+    color: white !important;
+    border-radius: 0 !important;
+  }
+  /* User-Anreise auf Belegungs-Abreisetag: links rot, rechts blau */
+  .cal-day--departure-occ-arrival-user {
+    background: linear-gradient(to right, rgba(167,6,5,0.14) 50%, #0566A8 50%) !important;
+    color: white !important;
+    border-radius: 0 !important;
+  }
+  /* User-Abreise auf Belegungs-Anreisetag: links blau, rechts rot */
+  .cal-day--arrival-occ-departure-user {
+    background: linear-gradient(to right, #0566A8 50%, rgba(167,6,5,0.14) 50%) !important;
     color: white !important;
     border-radius: 0 !important;
   }
@@ -65,6 +87,12 @@
     color: #A70605 !important;
     border-radius: 0 !important;
   }
+  /* Anreisetag auf Ferientag: linke Hälfte gold, rechte Hälfte belegt */
+  .cal-day--occ-arrival-special {
+    background: linear-gradient(to right, rgba(196,169,77,0.28) 50%, rgba(167,6,5,0.14) 50%) !important;
+    color: #A70605 !important;
+    border-radius: 0 !important;
+  }
 
   /* Abreisetag: linke Hälfte belegt, rechte frei */
   .cal-day--occ-departure {
@@ -72,10 +100,21 @@
     color: #A70605 !important;
     border-radius: 0 !important;
   }
+  /* Abreisetag auf Ferientag: linke Hälfte belegt, rechte Hälfte gold */
+  .cal-day--occ-departure-special {
+    background: linear-gradient(to right, rgba(167,6,5,0.14) 50%, rgba(196,169,77,0.28) 50%) !important;
+    color: #A70605 !important;
+    border-radius: 0 !important;
+  }
 
   /* Split day: Abreise + Anreise am selben Tag → geteilter Tag, mit weißer Mittellinie */
   .cal-day--occ-split {
-    background: linear-gradient(to right, rgba(167,6,5,0.14) calc(50% - 0.5px), white calc(50% - 0.5px), white calc(50% + 0.5px), rgba(167,6,5,0.28) calc(50% + 0.5px)) !important;
+    background: linear-gradient(to right, rgba(167,6,5,0.14) calc(50% - 0.5px), white calc(50% - 0.5px), white calc(50% + 0.5px), rgba(167,6,5,0.14) calc(50% + 0.5px)) !important;
+    color: #A70605 !important;
+    border-radius: 0 !important;
+  }
+  .cal-day--occ-split-special {
+    background: linear-gradient(to right, rgba(167,6,5,0.14) calc(50% - 0.5px), rgba(196,169,77,0.28) calc(50% - 0.5px), rgba(196,169,77,0.28) calc(50% + 0.5px), rgba(167,6,5,0.14) calc(50% + 0.5px)) !important;
     color: #A70605 !important;
     border-radius: 0 !important;
   }
@@ -102,6 +141,11 @@
     background-color: rgba(196, 169, 77, 0.28);
     color: #8a6f1a;
     font-weight: 500;
+  }
+
+  /* Gold underline indicator — shown even when occupied */
+  .cal-day--special-indicator {
+    border-bottom: 2px solid rgba(196, 169, 77, 0.7);
   }
 
   /* Lightbox */
