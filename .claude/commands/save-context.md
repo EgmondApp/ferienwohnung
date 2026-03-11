@@ -1,3 +1,5 @@
+> **Hinweis:** Wird auch automatisch als Teil von `/finish` (Schritt 2) ausgeführt. Nutze `/save-context` für Zwischenspeichern ohne Commit/Deploy.
+
 Du aktualisierst die Datei MEMORY.md nach einer Entwicklungs-Session mit allen relevanten Erkenntnissen.
 
 VORBEREITUNG:
@@ -52,16 +54,5 @@ KOMPAKT HALTEN:
 - Nur relevante Details (Code-Snippets nur wenn essentiell)
 - Verlinken statt erklären, wo möglich
 
-REPORT AM ENDE:
-Nach dem Update, schreib kurz:
-- Was wurde geändert? (Neue Features, Bugs behoben, Decisions getroffen)
-- Was ist neu dokumentiert?
-- Gibt es Warnings/Blockers für nächste Session?
-
-Beispiel:
-"### Session-Update
-✅ Gallery Lightbox Swipe implementiert
-✅ Mobile DatePicker Performance verbessert (Touch-Handler optimiert)
-⚠️ Firestore Rules noch nicht deployed – vor nächster Session checken
-→ Nächste Priority: Admin Dashboard Belegungsliste sortieren
-"
+ABSCHLUSS:
+Bestätige kurz was in MEMORY.md aktualisiert wurde (1–2 Sätze). Keinen ausführlichen Session-Report — der kommt bei `/finish` Schritt 6.
