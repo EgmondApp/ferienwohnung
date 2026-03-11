@@ -14,7 +14,6 @@
 - **Last Updated:** 2026-03-11
 - **Known Issues:** –
 - **Next Steps:**
-  - OccupancyEditor.jsx löschen (toter Code)
   - Kalender-Optik-Session abgeschlossen aber verworfen → Änderungen waren: Rotton vereinheitlichen, Legende kürzen, Ferien bei belegten Tagen (goldener Unterstrich), Admin-Zeitleiste. Alles auf Wunsch zurückgesetzt — kann jederzeit neu implementiert werden.
 
 ---
@@ -39,20 +38,21 @@
 - `src/pages/AdminPage.jsx` – Admin (lazy-loaded, ~26kB Chunk)
 
 ### Public Components
-- `src/components/public/Header.jsx` – Carousel (4 Slides: hero/exterior-1/exterior-8/interior-2, 5s), h-[42vh], Gradient-Overlay; Info-Button oben rechts (rounded-full, bg-black/25) + Dot-Indicators unten rechts; Prop: `onInfoClick`
-- `src/components/public/DateSelector.jsx` – Anreise/Abreise-Felder + Jahresübersicht-Link; MiniYearIcon nutzt #DED6CA
+- `src/components/public/Header.jsx` – Carousel (4 Slides: hero/exterior-1/exterior-8/interior-3, 5s), h-[42vh], Gradient-Overlay; Info-Button oben rechts (rounded-full, bg-black/25) + Dot-Indicators unten rechts; Prop: `onInfoClick`
+- `src/components/public/DateSelector.jsx` – Anreise/Abreise-Felder + Jahresübersicht-Link + ShareButton; MiniYearIcon nutzt #DED6CA
 - `src/components/public/YearOverviewTile.jsx` – Jahresübersicht-Modal, eigener arrival/departure-State, Konflikt-Feedback im Footer; kein "Belegt"-Text auf Tagen
 - `src/components/public/DatePicker.jsx` – 2-Monats-Picker, Legende oben, Pfeile abs. positioniert
 - `src/components/public/Gallery.jsx` – 2 Kacheln (Innen/Außen), Lightbox mit Swipe
 - `src/components/public/InquiryForm.jsx` – Validierung (email regex, name≥2, msg≤2000+counter), Erfolgsbox in offwhite/gold/anthracite
 - `src/components/public/Footer.jsx` – mailto-Link + Jahr
-- `src/components/public/GasteInfoModal.jsx` – Modal "Zu Wohnung und Anreise"; Props: isOpen, onClose; Inhalt: Adresse (Maps-Link), Anreise/Eingang, Zur Wohnung, Checklisten Ankunft/Abfahrt; Header-Link "Drucken / Vollansicht ↗" öffnet /info; ESC schließt
+- `src/components/public/GasteInfoModal.jsx` – Modal "Zu Wohnung und Anreise"; Props: isOpen, onClose; Inhalt: Adresse (Maps-Link + ShareButton in Card-Header), Anreise/Eingang, Zur Wohnung, Checklisten; Header-Link "Drucken / Vollansicht ↗" öffnet /info; ESC schließt; Card-Komponente hat optionalen `action`-Prop
 
 ### Shared Components
 - `src/components/shared/MonthCalendar.jsx` – Monatsraster, cal-day-Klassen, half-days → onDayClick; `React.memo` + `useMemo` für cellData
 - `src/components/shared/CalendarLegend.jsx` – prop showSelection=true; Einträge: Belegt, Auswahl (optional), Ferien/Feiertage (NRW)
 - `src/components/shared/ErrorBoundary.jsx` – Class-Component, Reload-Screen
 - `src/components/shared/InfoIcon.jsx` – Shared SVG info-icon
+- `src/components/shared/ShareButton.jsx` – Web Share API + Clipboard-Fallback; zeigt "Link kopiert!" (gold, 2s) auf Desktop; Prop-less, teilt immer canonical URL
 
 ### Admin Components
 - `src/components/admin/AdminLayout.jsx` – anthrazit Header, "← Gästeseite" auch Mobile
@@ -112,11 +112,12 @@
 - **Admin lazy-loaded:** Hält Haupt-Bundle klein
 - **cal-day:** Horizontale Splits, border-radius: 0, KEIN diagonal
 - **Keine Navigation im Header:** One-Page-Prinzip
+- **ShareButton:** Web Share API auf Mobile (natives Sheet), Clipboard-Fallback auf Desktop → keine externe Lib, canonical URL hardcoded (kein Hash-Fragment)
 
 ---
 
 ## [DEPRECATED]
-- `src/components/admin/OccupancyEditor.jsx` – nicht importiert, toter Code → kann gelöscht werden
+–
 
 ---
 
