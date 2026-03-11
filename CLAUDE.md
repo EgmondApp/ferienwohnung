@@ -1,5 +1,8 @@
 # CLAUDE.md
 
+## Memory
+Projektgedächtnis: `MEMORY.md` im Repo-Root. Immer lesen bevor du arbeitest.
+
 ## Commands
 
 ```bash
