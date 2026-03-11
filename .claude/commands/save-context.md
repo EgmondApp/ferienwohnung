@@ -1,7 +1,7 @@
-Du aktualisierst die Datei `r:\GitHub\ferienwohnung\MEMORY.md` nach einer Entwicklungs-Session mit allen relevanten Erkenntnissen.
+Du aktualisierst die Datei MEMORY.md nach einer Entwicklungs-Session mit allen relevanten Erkenntnissen.
 
 VORBEREITUNG:
-Lies zuerst `git -C r:\GitHub\ferienwohnung log --oneline -5` und `git -C r:\GitHub\ferienwohnung diff HEAD~1` um sicherzugehen dass alle Änderungen dieser Session dokumentiert werden – nichts vergessen.
+Lies zuerst `git log --oneline -5` und `git diff HEAD~1` um sicherzugehen dass alle Änderungen dieser Session dokumentiert werden – nichts vergessen.
 
 STRUKTUR (beibehalten):
 1. ⚡ Quick Facts (5 wichtigste Fakten – aktualisieren)

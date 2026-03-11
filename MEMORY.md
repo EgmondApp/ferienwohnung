@@ -13,14 +13,14 @@
 - **Phase:** Production
 - **Last Updated:** 2026-03-11
 - **Known Issues:** –
-- **Next Steps:** OccupancyEditor.jsx löschen (toter Code); MEMORY.md-Workflow testen in nächster Session
+- **Next Steps:** OccupancyEditor.jsx löschen (toter Code)
 
 ---
 
 ## Stack & Deployment
 - React + Vite + Tailwind + Firebase Firestore
 - HashRouter, Base-Path `/ferienwohnung/`
-- Deploy: `npm run deploy` → `gh-pages` Branch
+- Deploy: `npm run deploy` → `gh-pages` Branch (Source auf `main`, Build auf `gh-pages`)
 - Firebase CLI: `firebase deploy --only firestore:rules`
 - firebase.json + .firebaserc im Root
 - **PWA-Icons:** icon-192.png, icon-512.png, icon-maskable.png in public/images/
