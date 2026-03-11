@@ -50,17 +50,17 @@ export default function InquiryForm({ arrival, departure, onOpenDatePicker, onSu
       <div className="bg-white rounded-xl border border-border p-6 md:p-8">
 
         {sent ? (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
-            <p className="text-green-800 font-medium text-lg">
+          <div className="bg-offwhite border border-gold/40 rounded-lg p-8 text-center">
+            <p className="text-anthracite font-medium text-lg">
               Danke für die Anfrage — wir melden uns persönlich.
             </p>
-            <p className="text-green-600/70 text-sm mt-2">
+            <p className="text-anthracite/50 text-sm mt-2">
               Sie erhalten in Kürze eine Antwort per E-Mail.
             </p>
             <button
               type="button"
               onClick={() => setSent(false)}
-              className="mt-5 px-5 py-2 text-sm font-medium rounded-lg border border-green-300 text-green-800 hover:bg-green-100 transition-colors"
+              className="mt-5 px-5 py-2 text-sm font-medium rounded-lg border border-gold/40 text-anthracite/70 hover:bg-warm transition-colors"
             >
               Neue Anfrage stellen
             </button>

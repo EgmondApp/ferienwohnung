@@ -3,7 +3,7 @@ import { addMonths, subMonths, getMonth, getYear, differenceInDays } from 'date-
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
 import { formatDeDisplay } from '../../utils/dateHelpers';
-import { hasConflictBetween } from '../../utils/calendarHelpers';
+import { handleDaySelect } from '../../utils/calendarHelpers';
 
 export default function DatePicker({ isOpen, onClose, occupancy, initialDate, onSelect }) {
   const [baseMonth, setBaseMonth] = useState(() => {
@@ -39,20 +39,9 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
   const nights = arrival && departure ? differenceInDays(departure, arrival) : null;
 
   function handleDayClick(date) {
-    if (!arrival || (arrival && departure)) {
-      setArrival(date);
-      setDeparture(null);
-    } else if (date > arrival) {
-      if (hasConflictBetween(arrival, date, occupancy)) {
-        setArrival(date);
-        setDeparture(null);
-      } else {
-        setDeparture(date);
-      }
-    } else {
-      setArrival(date);
-      setDeparture(null);
-    }
+    const { newArrival, newDeparture } = handleDaySelect(arrival, departure, date, occupancy);
+    setArrival(newArrival);
+    setDeparture(newDeparture);
   }
 
   function handleConfirm() {

@@ -4,7 +4,7 @@ import { isSameDay, addMonths, subMonths, getMonth, getYear } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
 import { parseDe, formatDe, formatDeShort, formatDeDisplay, MONTH_NAMES } from '../../utils/dateHelpers';
-import { getOccupancy, getSpecialDayInfo, isOccupied } from '../../utils/calendarHelpers';
+import { getOccupancy, getSpecialDayInfo, handleDaySelect } from '../../utils/calendarHelpers';
 
 const IconCalendar = () => (
   <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -166,31 +166,12 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
   const addNights = addArrival && addDeparture ? Math.round((addDeparture - addArrival) / 86400000) : null;
   const addSelectedRange = { start: addArrival, end: addDeparture };
 
-  function hasConflictBetween(start, end) {
-    const msDay = 86400000;
-    for (let d = new Date(start.getTime() + msDay); d < end; d = new Date(d.getTime() + msDay)) {
-      if (isOccupied(d, occupancy)) return true;
-    }
-    return false;
-  }
-
   function handleAddDayClick(date) {
     setAddError(null);
-    if (!addArrival || (addArrival && addDeparture)) {
-      setAddArrival(date);
-      setAddDeparture(null);
-    } else if (date > addArrival) {
-      if (hasConflictBetween(addArrival, date)) {
-        setAddArrival(date);
-        setAddDeparture(null);
-        setAddError('Zeitraum enthält belegte Tage — neuen Anreisetag wählen.');
-      } else {
-        setAddDeparture(date);
-      }
-    } else {
-      setAddArrival(date);
-      setAddDeparture(null);
-    }
+    const { newArrival, newDeparture, conflict } = handleDaySelect(addArrival, addDeparture, date, occupancy);
+    setAddArrival(newArrival);
+    setAddDeparture(newDeparture);
+    if (conflict) setAddError('Zeitraum enthält belegte Tage — neuen Anreisetag wählen.');
   }
 
   function resetAddForm() {
@@ -394,29 +375,22 @@ export default function AdminCalendar({ occupancy, loading, error, removeOccupan
       {/* Occupancy list — screen only */}
       <div className="mt-6 no-print">
         <h2 className="font-serif text-xl text-anthracite mb-3 px-0.5">Belegungen {year}</h2>
-        {occupancy.filter((o) => {
-          const [, , y] = o.startDate.split('.').map(Number);
-          return y === year;
-        }).length === 0 ? (
+        {occupancy.filter((o) => getYear(parseDe(o.startDate)) === year).length === 0 ? (
           <div className="bg-white rounded-xl border border-border shadow-sm px-5 py-6 text-sm text-stone text-center">Keine Belegungen für {year}.</div>
         ) : (
           <div className="space-y-3">
             {occupancy
-              .filter((o) => { const [, , y] = o.startDate.split('.').map(Number); return y === year; })
-              .sort((a, b) => {
-                const [ad, am, ay] = a.startDate.split('.').map(Number);
-                const [bd, bm, by] = b.startDate.split('.').map(Number);
-                return new Date(ay, am - 1, ad) - new Date(by, bm - 1, bd);
-              })
+              .filter((o) => getYear(parseDe(o.startDate)) === year)
+              .sort((a, b) => parseDe(a.startDate) - parseDe(b.startDate))
               .map((o) => (
-                <div key={o.id} className="bg-white rounded-xl border border-green-200 shadow-sm px-5 py-4 opacity-90">
+                <div key={o.id} className="bg-white rounded-xl border border-border shadow-sm px-5 py-4 opacity-90">
                   {/* Name + badges */}
                   <div className="flex items-center gap-2 flex-wrap mb-2">
-                    <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-gold/60 shrink-0" />
                     <span className="text-sm font-semibold text-anthracite">
                       {o.note || <span className="text-anthracite/30 font-normal">–</span>}
                     </span>
-                    <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-green-100 text-green-800">Bestätigt</span>
+                    <span className="px-2 py-0.5 text-[11px] font-medium rounded-full bg-offwhite border border-border text-anthracite/60">Bestätigt</span>
                     <span className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full bg-offwhite border border-border text-anthracite/55">
                       <IconMoon />{calcNights(o.startDate, o.endDate)} Nächte
                     </span>

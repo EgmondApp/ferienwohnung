@@ -24,7 +24,7 @@ export default function GasteInfoModal({ isOpen, onClose }) {
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <span className="font-serif text-lg text-anthracite">Informationen</span>
+          <span className="font-serif text-lg text-anthracite">Zu Wohnung und Anreise</span>
           <div className="flex items-center gap-4">
             <a href={`${baseUrl}#/info`} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs font-medium rounded-full border border-border bg-offwhite hover:bg-warm hover:border-anthracite/20 text-anthracite/60 hover:text-anthracite transition-colors">
               Drucken / Vollansicht ↗

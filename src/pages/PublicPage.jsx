@@ -81,12 +81,12 @@ export default function PublicPage() {
 
       <Gallery />
 
-      <div className="px-6 py-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
+      <div className="px-6 pt-2 pb-2 md:px-12 lg:px-20 max-w-7xl mx-auto">
         <button
           onClick={() => setGasteInfoOpen(true)}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl border border-border bg-offwhite hover:bg-warm transition-colors text-anthracite/80 hover:text-anthracite text-sm font-medium"
+          className="group w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl border border-gold/30 bg-offwhite hover:border-gold/50 hover:shadow-sm transition-all text-anthracite/50 hover:text-anthracite/70 text-sm font-medium"
         >
-          <InfoIcon />
+          <InfoIcon className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
           Informationen zur Wohnung und Anreise
         </button>
       </div>

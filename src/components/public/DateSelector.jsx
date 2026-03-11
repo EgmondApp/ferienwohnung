@@ -15,7 +15,7 @@ const MiniYearIcon = () => {
     [0, 0, 0, 1, 1, 0, 0, 0, 0, 2],
     [0, 0, 2, 0, 1, 1, 1, 0, 0, 0],
   ];
-  const colors = { 0: '#9E9587', 1: '#A70605', 2: '#C4A94D' };
+  const colors = { 0: '#DED6CA', 1: '#A70605', 2: '#C4A94D' };
   const opacities = { 0: 0.25, 1: 0.55, 2: 0.6 };
 
   return (

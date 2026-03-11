@@ -18,7 +18,7 @@ export default function InfoPage() {
 
         {/* Titel */}
         <div className="print:mb-6">
-          <h1 className="font-serif text-3xl text-anthracite">Willkommen in Egmond aan Zee</h1>
+          <h1 className="font-serif text-3xl text-anthracite">Zu Wohnung und Anreise</h1>
           <p className="text-anthracite/60 mt-2 text-sm leading-relaxed">Alle Infos für Euren Aufenthalt auf einen Blick.</p>
         </div>
 

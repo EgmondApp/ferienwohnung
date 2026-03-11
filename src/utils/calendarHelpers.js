@@ -101,3 +101,21 @@ export function hasConflictBetween(start, end, occupancyList) {
   }
   return false;
 }
+
+/**
+ * Shared arrival/departure selection logic used by DatePicker, YearOverviewTile, AdminCalendar.
+ * Returns { newArrival, newDeparture, conflict } based on current state and clicked date.
+ * conflict=true means the selected range contained occupied days.
+ */
+export function handleDaySelect(arrival, departure, clickedDate, occupancyList) {
+  if (!arrival || (arrival && departure)) {
+    return { newArrival: clickedDate, newDeparture: null, conflict: false };
+  }
+  if (clickedDate > arrival) {
+    if (hasConflictBetween(arrival, clickedDate, occupancyList)) {
+      return { newArrival: clickedDate, newDeparture: null, conflict: true };
+    }
+    return { newArrival: arrival, newDeparture: clickedDate, conflict: false };
+  }
+  return { newArrival: clickedDate, newDeparture: null, conflict: false };
+}

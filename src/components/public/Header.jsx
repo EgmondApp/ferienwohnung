@@ -50,7 +50,7 @@ export default function Header({ onInfoClick }) {
           <button
             onClick={onInfoClick}
             aria-label="Informationen & Anreise"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/25 hover:bg-black/40 backdrop-blur-sm text-white/90 text-xs transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full bg-black/25 hover:bg-black/40 backdrop-blur-sm text-white/90 text-xs transition-colors"
           >
             <InfoIcon className="w-3.5 h-3.5" />
             Info
