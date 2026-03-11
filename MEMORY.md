@@ -13,7 +13,7 @@
 - **Phase:** Production
 - **Last Updated:** 2026-03-11
 - **Known Issues:** –
-- **Next Steps:** OccupancyEditor.jsx löschen (toter Code)
+- **Next Steps:** OccupancyEditor.jsx löschen (toter Code); MEMORY.md-Workflow testen in nächster Session
 
 ---
 
@@ -23,6 +23,7 @@
 - Deploy: `npm run deploy` → `gh-pages` Branch
 - Firebase CLI: `firebase deploy --only firestore:rules`
 - firebase.json + .firebaserc im Root
+- **PWA-Icons:** icon-192.png, icon-512.png, icon-maskable.png in public/images/
 
 ---
 
@@ -86,7 +87,6 @@
 - **Rules:** ADMIN_KEY-Check für occupancy create/update, inquiry update
 - **Delete:** erlaubt wenn kein _ak im Doc (Legacy) oder _ak korrekt
 - **Inquiry create:** name≥2, email≥5, arrival/departure required, msg≤2000
-- **PWA-Icons:** icon-192.png, icon-512.png, icon-maskable.png in public/images/
 
 ---
 
