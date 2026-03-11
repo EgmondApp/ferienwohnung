@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { addMonths, subMonths, getMonth, getYear, differenceInDays } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
@@ -33,24 +33,24 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
     return () => window.removeEventListener('keydown', handleKey);
   }, [isOpen, onClose]);
 
+  const selectedRange = useMemo(() => ({ start: arrival, end: departure }), [arrival, departure]);
+
+  const handleDayClick = useCallback((date) => {
+    const { newArrival, newDeparture } = handleDaySelect(arrival, departure, date, occupancy);
+    setArrival(newArrival);
+    setDeparture(newDeparture);
+  }, [arrival, departure, occupancy]);
+
   if (!isOpen) return null;
 
   const secondMonth = addMonths(baseMonth, 1);
   const nights = arrival && departure ? differenceInDays(departure, arrival) : null;
 
-  function handleDayClick(date) {
-    const { newArrival, newDeparture } = handleDaySelect(arrival, departure, date, occupancy);
-    setArrival(newArrival);
-    setDeparture(newDeparture);
-  }
-
   function handleConfirm() {
     if (arrival && departure) {
       onSelect({ arrival, departure });
       onClose();
-      setTimeout(() => {
-        document.getElementById('anfrage')?.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+      document.getElementById('anfrage')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
@@ -59,11 +59,9 @@ export default function DatePicker({ isOpen, onClose, occupancy, initialDate, on
     setDeparture(null);
   }
 
-  const selectedRange = { start: arrival, end: departure };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-anthracite/60 px-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col" role="dialog" aria-label="Reisezeitraum wählen" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-anthracite/60 px-4 animate-fade-in" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col animate-modal-in" role="dialog" aria-label="Reisezeitraum wählen" onClick={(e) => e.stopPropagation()}>
 
         {/* Header — merged title + selection summary */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">

@@ -13,13 +13,16 @@
 - **Phase:** Production
 - **Last Updated:** 2026-03-11
 - **Known Issues:** –
-- **Next Steps:** OccupancyEditor.jsx löschen (toter Code)
+- **Next Steps:**
+  - OccupancyEditor.jsx löschen (toter Code)
+  - Kalender-Optik-Session abgeschlossen aber verworfen → Änderungen waren: Rotton vereinheitlichen, Legende kürzen, Ferien bei belegten Tagen (goldener Unterstrich), Admin-Zeitleiste. Alles auf Wunsch zurückgesetzt — kann jederzeit neu implementiert werden.
 
 ---
 
 ## Stack & Deployment
 - React + Vite + Tailwind + Firebase Firestore
 - HashRouter, Base-Path `/ferienwohnung/`
+- **Branches:** `main` (Quellcode, Default), `gh-pages` (Build-Output, auto von `npm run deploy`)
 - Deploy: `npm run deploy` → `gh-pages` Branch (Source auf `main`, Build auf `gh-pages`)
 - Firebase CLI: `firebase deploy --only firestore:rules`
 - firebase.json + .firebaserc im Root
@@ -46,8 +49,8 @@
 - `src/components/public/GasteInfoModal.jsx` – Modal "Zu Wohnung und Anreise"; Props: isOpen, onClose; Inhalt: Adresse (Maps-Link), Anreise/Eingang, Zur Wohnung, Checklisten Ankunft/Abfahrt; Header-Link "Drucken / Vollansicht ↗" öffnet /info; ESC schließt
 
 ### Shared Components
-- `src/components/shared/MonthCalendar.jsx` – Monatsraster, cal-day-Klassen, half-days → onDayClick
-- `src/components/shared/CalendarLegend.jsx` – prop showSelection=true; "Belegt"-Label in Legende (nur aus YearOverview entfernt)
+- `src/components/shared/MonthCalendar.jsx` – Monatsraster, cal-day-Klassen, half-days → onDayClick; `React.memo` + `useMemo` für cellData
+- `src/components/shared/CalendarLegend.jsx` – prop showSelection=true; Einträge: Belegt, Auswahl (optional), Ferien/Feiertage (NRW)
 - `src/components/shared/ErrorBoundary.jsx` – Class-Component, Reload-Screen
 - `src/components/shared/InfoIcon.jsx` – Shared SVG info-icon
 
@@ -77,9 +80,11 @@
 
 ### UI-Konventionen
 - Muted text: `text-anthracite/40` (nicht text-stone)
-- Kalender half-day Splits: Opacity 0.14
+- Kalender half-day Splits: Opacity 0.14 (belegt), horizontale Gradienten
 - Nächte: `differenceInDays` aus date-fns
 - Keine raw `green-*` Klassen – Erfolgsboxen: offwhite/gold/anthracite
+- Modal-Animationen: `animate-fade-in` (Backdrop), `animate-modal-in` (Dialog) via index.css
+- Scrollbar-Shift vermieden: `scrollbar-gutter: stable` auf body
 
 ---
 

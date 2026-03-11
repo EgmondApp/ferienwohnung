@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { addMonths, subMonths, getMonth, getYear } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
@@ -35,12 +35,12 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
     setDeparture(null);
   }
 
-  function handleDayClick(date) {
+  const handleDayClick = useCallback((date) => {
     const { newArrival, newDeparture, conflict } = handleDaySelect(arrival, departure, date, occupancy);
     setArrival(newArrival);
     setDeparture(newDeparture);
     setConflictMsg(conflict);
-  }
+  }, [arrival, departure, occupancy]);
 
   function handleConfirm() {
     if (arrival && departure) {
@@ -49,9 +49,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
       setZoomedBase(null);
       setArrival(null);
       setDeparture(null);
-      setTimeout(() => {
-        document.getElementById('anfrage')?.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+      document.getElementById('anfrage')?.scrollIntoView({ behavior: 'smooth' });
     }
   }
 
@@ -60,7 +58,7 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
     setDeparture(null);
   }
 
-  const selectedRange = { start: arrival, end: departure };
+  const selectedRange = useMemo(() => ({ start: arrival, end: departure }), [arrival, departure]);
   const hasSelection = arrival || departure;
   const secondMonth = zoomedBase ? addMonths(zoomedBase, 1) : null;
 
@@ -68,11 +66,11 @@ export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect 
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-anthracite/60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-anthracite/60 flex items-center justify-center p-4 animate-fade-in"
           onClick={close}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col" role="dialog" aria-label="Jahresübersicht"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col animate-modal-in" role="dialog" aria-label="Jahresübersicht"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

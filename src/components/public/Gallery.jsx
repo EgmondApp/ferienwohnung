@@ -85,7 +85,7 @@ export default function Gallery() {
       {/* Lightbox */}
       {activeGallery && (
         <div
-          className="lightbox-overlay"
+          className="lightbox-overlay animate-fade-in"
           role="dialog"
           aria-label={`${activeGallery.gallery.label} Galerie`}
           onClick={() => setActiveGallery(null)}
@@ -101,9 +101,10 @@ export default function Gallery() {
           >‹</button>
 
           <img
+            key={activeGallery.index}
             src={activeGallery.gallery.images[activeGallery.index].src}
             alt={activeGallery.gallery.images[activeGallery.index].alt}
-            className="max-h-[85vh] max-w-[90vw] object-contain rounded shadow-2xl"
+            className="max-h-[85vh] max-w-[90vw] object-contain rounded shadow-2xl animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           />
 

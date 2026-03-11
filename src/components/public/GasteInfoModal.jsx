@@ -19,8 +19,8 @@ export default function GasteInfoModal({ isOpen, onClose }) {
   const baseUrl = window.location.href.split('#')[0];
 
   return (
-    <div className="fixed inset-0 z-50 bg-anthracite/60 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-warm rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col" role="dialog" aria-label="Informationen" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-anthracite/60 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+      <div className="bg-warm rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col animate-modal-in" role="dialog" aria-label="Informationen" onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">

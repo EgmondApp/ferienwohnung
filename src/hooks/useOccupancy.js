@@ -22,7 +22,10 @@ export function useOccupancy() {
           const [db2, mb, yb] = b.startDate.split('.').map(Number);
           return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db2);
         });
-        setOccupancy(data);
+        setOccupancy((prev) => {
+          if (prev.length === data.length && prev.every((e, i) => e.id === data[i].id && e.startDate === data[i].startDate && e.endDate === data[i].endDate && e.note === data[i].note)) return prev;
+          return data;
+        });
         setLoading(false);
         setError(null);
       },

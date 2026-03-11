@@ -5,6 +5,13 @@ Beende die aktuelle Session sauber. Führe folgende Schritte der Reihe nach aus:
    - Aktualisiere MEMORY.md nach der Struktur aus `.claude/commands/save-context.md`
    - Halte es kompakt (max. 250 Zeilen)
 
+1a. **R:\Claude\ferienwohnung\ synchronisieren** (bei relevanten Änderungen):
+   - **Architektur-Änderungen** (neue Komponenten, neue Hooks, Struktur): ARCHITECTURE.md updaten
+   - **Deploy-Änderungen** (neue Scripts, Prozess-Änderungen): DEPLOYMENT.md updaten
+   - **Neue bekannte Probleme oder Sync-Regeln**: TROUBLESHOOTING.md updaten
+   - **Projektdaten-Änderungen** (URL, Stack, Beschreibung): README.md updaten
+   - Nur updaten wenn sich etwas Wesentliches geändert hat – kein Update wenn nur Bugfixes oder UI-Tweaks
+
 2. **Auf main committen**:
    - Füge alle geänderten Dateien zum Commit hinzu
    - Erstelle einen aussagekräftigen Commit mit Zusammenfassung der Session-Änderungen
