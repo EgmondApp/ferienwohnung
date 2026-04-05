@@ -1,6 +1,6 @@
 // Date utility functions. All Firestore dates use dd.MM.yyyy format.
 // Use parseDe() to parse, formatDe() to serialize. Never store JS Date objects in Firestore.
-import { parse, format, eachDayOfInterval, isWithinInterval, isBefore, isAfter, startOfDay, isSameDay } from 'date-fns';
+import { parse, format, eachDayOfInterval, isWithinInterval, isBefore, startOfDay, isSameDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 const DE_FORMAT = 'dd.MM.yyyy';

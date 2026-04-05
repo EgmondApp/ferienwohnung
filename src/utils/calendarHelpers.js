@@ -1,7 +1,7 @@
 // Calendar grid and occupancy helpers used by MonthCalendar.
 // buildMonthGrid → week array for rendering. isOccupied/getOccupancy → booking lookup.
 // getSpecialDayInfo → NRW holidays/school breaks from src/data/holidays.js.
-import { getYear, getMonth, getDay, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
+import { getYear, getDay, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 import { parseDe, isInRange } from './dateHelpers';
 import { publicHolidays, schoolHolidays, bridgeDays } from '../data/holidays';
 

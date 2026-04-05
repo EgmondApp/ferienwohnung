@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { addMonths, subMonths, getMonth, getYear } from 'date-fns';
 import MonthCalendar from '../shared/MonthCalendar';
 import CalendarLegend from '../shared/CalendarLegend';
-import { MONTH_NAMES, formatDeDisplay } from '../../utils/dateHelpers';
+import { formatDeDisplay } from '../../utils/dateHelpers';
 import { handleDaySelect } from '../../utils/calendarHelpers';
 
 export default function YearOverviewTile({ occupancy, isOpen, onClose, onSelect }) {
