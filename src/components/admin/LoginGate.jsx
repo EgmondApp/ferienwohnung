@@ -1,18 +1,19 @@
 import { useState } from 'react';
 
 export default function LoginGate({ onLogin }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setChecking(true);
-    setError(false);
+    setError(null);
 
-    const success = await onLogin(password);
-    if (!success) {
-      setError(true);
+    const message = await onLogin(email, password);
+    if (message) {
+      setError(message);
       setPassword('');
     }
     setChecking(false);
@@ -29,6 +30,21 @@ export default function LoginGate({ onLogin }) {
         <div className="bg-white rounded-xl border border-border p-6 md:p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <label htmlFor="login-email" className="block text-xs text-anthracite/50 mb-1.5">E-Mail</label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors"
+                placeholder="name@beispiel.de"
+                autoComplete="username"
+                autoFocus
+                required
+              />
+            </div>
+            <div>
               <label htmlFor="login-password" className="block text-xs text-anthracite/50 mb-1.5">Passwort</label>
               <input
                 id="login-password"
@@ -39,17 +55,17 @@ export default function LoginGate({ onLogin }) {
                 className="w-full px-4 py-2.5 bg-white border border-border rounded text-sm text-anthracite placeholder:text-stone focus:outline-none focus:border-anthracite/40 focus:ring-2 focus:ring-anthracite/10 transition-colors"
                 placeholder="Passwort eingeben"
                 autoComplete="current-password"
-                autoFocus
+                required
               />
             </div>
             {error && (
               <p className="text-primary text-sm border border-primary/20 bg-primary/5 rounded px-3 py-2">
-                Falsches Passwort.
+                {error}
               </p>
             )}
             <button
               type="submit"
-              disabled={checking || !password}
+              disabled={checking || !email || !password}
               className="w-full px-4 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-40"
             >
               {checking ? 'Prüfe…' : 'Anmelden'}

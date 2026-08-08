@@ -1,61 +1,83 @@
+// Admin authentication via Firebase Auth (email + password).
+//
+// Accounts are created manually in the Firebase Console under
+// Authentication → Users. There is no self-registration in the app.
+//
+// Replaces the previous client-side SHA-256 password gate. That gate only
+// hid the admin UI — it never protected the data, because the Firestore
+// rules checked a shared key that shipped inside the JS bundle.
 import { useState, useEffect, useCallback } from 'react';
-
-/*
- * Simple client-side password gate.
- * Default password: "ferienwohnung2025"
- * The active hash is stored in localStorage (HASH_KEY).
- * Falls back to ADMIN_HASH if nothing is stored (first run / localStorage cleared).
- */
-const ADMIN_HASH = '7f51a62a10ca8f9e5ca6c9b1a21570b87b569ffd32a971140115f0387d39f369';
-const SESSION_KEY = 'fw_admin';
-const HASH_KEY = 'fw_admin_hash';
-
-async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const buffer = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-function getActiveHash() {
-  return localStorage.getItem(HASH_KEY) || ADMIN_HASH;
-}
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from 'firebase/auth';
+import { auth } from '../firebase';
 
 export function useAdmin() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === 'true') {
-      setIsAuthenticated(true);
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setChecking(false);
+    });
+    return unsub;
+  }, []);
+
+  // Returns null on success, or a human-readable error message.
+  const login = useCallback(async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      return null;
+    } catch (err) {
+      switch (err.code) {
+        case 'auth/invalid-email':
+          return 'E-Mail-Adresse ungültig.';
+        case 'auth/too-many-requests':
+          return 'Zu viele Fehlversuche. Bitte später erneut probieren.';
+        case 'auth/network-request-failed':
+          return 'Keine Verbindung zum Server.';
+        case 'auth/configuration-not-found':
+        case 'auth/operation-not-allowed':
+          // Setup is incomplete — without this branch the message below
+          // would blame the password and send you looking in the wrong place.
+          return 'Anmeldung ist nicht eingerichtet: In der Firebase Console unter Authentication den Anbieter „E-Mail/Passwort" aktivieren.';
+        default:
+          // invalid-credential / user-not-found / wrong-password are
+          // deliberately collapsed — no hint about which part was wrong.
+          return 'E-Mail oder Passwort falsch.';
+      }
     }
-    setChecking(false);
   }, []);
 
-  const login = useCallback(async (password) => {
-    const hash = await hashPassword(password);
-    if (hash === getActiveHash()) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
-  }, []);
+  const logout = useCallback(() => signOut(auth), []);
 
-  const logout = useCallback(() => {
-    sessionStorage.removeItem(SESSION_KEY);
-    setIsAuthenticated(false);
-  }, []);
-
+  // Firebase requires a recent login before changing the password,
+  // so we re-authenticate with the current one first.
   const changePassword = useCallback(async (currentPassword, newPassword) => {
-    const currentHash = await hashPassword(currentPassword);
-    if (currentHash !== getActiveHash()) return false;
-    const newHash = await hashPassword(newPassword);
-    localStorage.setItem(HASH_KEY, newHash);
-    return true;
+    const current = auth.currentUser;
+    if (!current?.email) return 'Nicht angemeldet.';
+    try {
+      const cred = EmailAuthProvider.credential(current.email, currentPassword);
+      await reauthenticateWithCredential(current, cred);
+      await updatePassword(current, newPassword);
+      return null;
+    } catch (err) {
+      switch (err.code) {
+        case 'auth/weak-password':
+          return 'Neues Passwort ist zu schwach (mindestens 6 Zeichen).';
+        case 'auth/too-many-requests':
+          return 'Zu viele Fehlversuche. Bitte später erneut probieren.';
+        default:
+          return 'Aktuelles Passwort falsch.';
+      }
+    }
   }, []);
 
-  return { isAuthenticated, checking, login, logout, changePassword };
+  return { user, isAuthenticated: !!user, checking, login, logout, changePassword };
 }

@@ -2,41 +2,62 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Shared admin key — client-side guard against casual/automated abuse.
-    // Not a replacement for Firebase Auth, but prevents random writes.
-    // If compromised: change ADMIN_KEY in src/firebase.js AND this value.
-    function hasAdminKey() {
-      return request.resource.data._ak == 'egmond-fw-XK9m';
+    // Write access requires a Firebase Auth account. Accounts are created
+    // manually in the Firebase Console (Authentication -> Users); there is
+    // no self-registration, so any signed-in user is an admin.
+    //
+    // This replaces the previous shared-key check. That key shipped inside
+    // the public JS bundle, which let anyone read, modify and delete every
+    // booking and inquiry without signing in.
+    function isAdmin() {
+      return request.auth != null;
     }
 
-    // Occupancy: public read, admin-only write.
-    // Delete requires _ak on the existing doc (all newly created docs have it).
+    // Dates only — publicly readable so the guest calendar can show which
+    // days are taken. Guest data lives in /bookingDetails, never here.
     match /occupancy/{docId} {
       allow read: if true;
-      allow create, update: if hasAdminKey();
-      // Allow delete of legacy docs (no _ak) and new docs with correct key.
-      allow delete: if !('_ak' in resource.data) || resource.data._ak == 'egmond-fw-XK9m';
+      allow create, update, delete: if isAdmin();
     }
 
-    // Inquiries: guests can create (booking form), admin-only update/delete.
-    // Create validates required fields + message length (spam protection).
-    // Guest-created docs never carry _ak, so delete stays permissive (same as before).
+    // Guest data belonging to a booking (same document id as /occupancy).
+    // Never publicly readable.
+    match /bookingDetails/{docId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // Inquiries hold guest contact data: anyone may submit one via the
+    // booking form, but only admins can read them back.
     match /inquiries/{docId} {
-      allow read: if true;
+      allow read, update, delete: if isAdmin();
       allow create: if
-        request.resource.data.name is string && request.resource.data.name.size() >= 2 &&
-        request.resource.data.email is string && request.resource.data.email.size() >= 5 &&
+        request.resource.data.keys().hasOnly([
+          'name', 'email', 'phone', 'guests', 'message',
+          'arrival', 'departure', 'status', 'createdAt'
+        ]) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() >= 2 &&
+        request.resource.data.name.size() <= 100 &&
+        request.resource.data.email is string &&
+        request.resource.data.email.size() >= 5 &&
+        request.resource.data.email.size() <= 200 &&
         request.resource.data.arrival is string &&
         request.resource.data.departure is string &&
+        request.resource.data.status == 'neu' &&
+        (!('phone' in request.resource.data) || request.resource.data.phone.size() <= 40) &&
+        (!('guests' in request.resource.data) || request.resource.data.guests is number) &&
         (!('message' in request.resource.data) || request.resource.data.message.size() <= 2000);
-      allow update: if hasAdminKey();
-      allow delete: if !('_ak' in resource.data) || resource.data._ak == 'egmond-fw-XK9m';
     }
 
     // Settings: read-only
     match /settings/{docId} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // Anything not matched above is denied.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

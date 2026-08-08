@@ -21,9 +21,9 @@ function PasswordModal({ changePassword, onClose }) {
     if (next.length < 6) { setError('Neues Passwort muss mindestens 6 Zeichen haben.'); return; }
     if (next !== confirm) { setError('Passwörter stimmen nicht überein.'); return; }
     setSaving(true);
-    const ok = await changePassword(current, next);
+    const message = await changePassword(current, next);
     setSaving(false);
-    if (!ok) { setError('Aktuelles Passwort falsch.'); return; }
+    if (message) { setError(message); return; }
     setSuccess(true);
     setTimeout(onClose, 1500);
   }
@@ -66,8 +66,9 @@ function PasswordModal({ changePassword, onClose }) {
 
 export default function AdminLayout({ onLogout, changePassword }) {
   const [pwModalOpen, setPwModalOpen] = useState(false);
-  const occupancyHook = useOccupancy();
-  const inquiriesHook = useInquiries();
+  // Admin views need the guest data merged in and the inquiry listener active.
+  const occupancyHook = useOccupancy(true);
+  const inquiriesHook = useInquiries(true);
 
   return (
     <div className="min-h-screen bg-warm">
