@@ -1,7 +1,12 @@
-// Firebase client setup. Exports `db` (Firestore instance) used by all hooks.
+// Firebase client setup. Exports `db` (Firestore) and `auth` (Firebase Auth).
 // Project: egmondbelegung (europe-west3). Config is public/client-safe.
+//
+// Write access is guarded by Firebase Auth, NOT by a shared key in this file.
+// Admin accounts are created manually in the Firebase Console
+// (Authentication → Users). Self-registration is disabled.
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCVuLt773djuu5QVt4epbzUFN57Bo8M9Fg",
@@ -14,9 +19,5 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 export { app };
-
-// Simple write-guard for Firestore rules. Not a user password —
-// a separate client key to block casual/automated abuse.
-// Change this value AND update firestore.rules if compromised.
-export const ADMIN_KEY = 'egmond-fw-XK9m';

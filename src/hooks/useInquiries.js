@@ -1,18 +1,23 @@
 // Firestore hook for the "inquiries" collection.
-// Provides real-time inquiry list + addInquiry / updateInquiryStatus / deleteInquiry.
-// status values: "neu" | "gebucht" | "abgelehnt". Used by AdminLayout, InquiryList, PublicPage.
+// status values: "neu" | "gebucht" | "abgelehnt".
+//
+// Inquiries contain guest contact data and are readable by signed-in admins
+// only. Guests can create them (the booking form) but never read them back,
+// so the public page must pass listen=false — otherwise its snapshot listener
+// would be rejected by the rules.
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db, ADMIN_KEY } from '../firebase';
+import { db } from '../firebase';
 
 const COLLECTION = 'inquiries';
 
-export function useInquiries() {
+export function useInquiries(listen = false) {
   const [inquiries, setInquiries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(listen);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!listen) return;
     const unsub = onSnapshot(
       collection(db, COLLECTION),
       (snapshot) => {
@@ -33,7 +38,7 @@ export function useInquiries() {
       }
     );
     return unsub;
-  }, []);
+  }, [listen]);
 
   async function addInquiry(inquiry) {
     await addDoc(collection(db, COLLECTION), {
@@ -44,7 +49,7 @@ export function useInquiries() {
   }
 
   async function updateInquiryStatus(id, status) {
-    await updateDoc(doc(db, COLLECTION, id), { status, _ak: ADMIN_KEY });
+    await updateDoc(doc(db, COLLECTION, id), { status });
   }
 
   async function deleteInquiry(id) {

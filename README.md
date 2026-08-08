@@ -24,16 +24,15 @@ npm install
 4. `src/firebase.js` mit eigenen Werten aktualisieren
 5. Firestore-Regeln aus `firestore.rules` übernehmen
 
-### 3. Admin-Passwort setzen
+### 3. Admin-Zugang einrichten
 
-Hash in der Browser-Konsole generieren:
+Der Admin-Bereich läuft über Firebase Auth. In der [Firebase Console](https://console.firebase.google.com):
 
-```js
-crypto.subtle.digest('SHA-256', new TextEncoder().encode('DEIN_PASSWORT'))
-  .then(b => console.log(Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join('')))
-```
+1. **Authentication** → Get started → Anbieter **E-Mail/Passwort** aktivieren
+2. **Authentication → Users → Add user**: E-Mail + Passwort für jede Person eintragen, die verwalten darf
 
-Hash in `src/hooks/useAdmin.js` → `ADMIN_HASH` eintragen.
+Es gibt bewusst keine Selbstregistrierung in der App — wer einen Account hat, ist Admin.
+Passwörter lassen sich später im Admin-Bereich unter „Passwort" ändern.
 
 ### 4. Bilder ablegen
 
@@ -85,9 +84,9 @@ src/
 │   ├── dateHelpers.js         Datumsformatierung
 │   └── calendarHelpers.js     Kalenderlogik (buildMonthGrid, isOccupied)
 ├── hooks/
-│   ├── useOccupancy.js        Firestore "occupancy"
+│   ├── useOccupancy.js        Firestore "occupancy" + "bookingDetails"
 │   ├── useInquiries.js        Firestore "inquiries"
-│   └── useAdmin.js            Passwort-Login (SHA-256)
+│   └── useAdmin.js            Firebase Auth (E-Mail/Passwort)
 ├── components/
 │   ├── shared/
 │   │   ├── MonthCalendar.jsx
@@ -111,6 +110,31 @@ src/
     ├── InfoPage.jsx           Gäste-Info (druckbar, /info)
     └── AdminPage.jsx          Lazy-loaded
 ```
+
+## Datenmodell
+
+| Collection | Inhalt | Lesbar für |
+|---|---|---|
+| `occupancy/{id}` | `startDate`, `endDate` | alle (Gästekalender) |
+| `bookingDetails/{id}` | `note`, `email`, `phone`, `message` | nur angemeldete Admins |
+| `inquiries/{id}` | Anfrage inkl. Kontaktdaten | Anlegen: alle · Lesen: nur Admins |
+| `settings/{id}` | – | alle, schreibgeschützt |
+
+Belegung und zugehörige Gästedaten teilen sich dieselbe Dokument-ID. Der Split ist nötig,
+weil Firestore-Regeln keine einzelnen Felder schützen können: der öffentliche Kalender muss
+die Datumsangaben lesen, also wäre alles andere im selben Dokument ebenfalls öffentlich.
+
+`useOccupancy(true)` führt beide Collections wieder zusammen, `useOccupancy()` liefert nur die Daten.
+
+### Migration bestehender Daten
+
+Einmalig nach dem Deploy der neuen Regeln:
+
+```bash
+FW_ADMIN_EMAIL=... FW_ADMIN_PASSWORD=... node scripts/migrate-booking-details.js
+```
+
+Zeigt zunächst nur an, was passieren würde. Mit `--apply` ausführen. Mehrfach ausführbar.
 
 ## Technologie
 

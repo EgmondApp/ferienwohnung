@@ -5,7 +5,7 @@
 - **Repo:** https://github.com/EgmondApp/ferienwohnung
 - **Stack:** React + Vite + Tailwind + Firebase Firestore → GitHub Pages
 - **Deploy:** `npm run deploy` (immer erst fragen!)
-- **Firebase:** egmondbelegung, europe-west3, ADMIN_KEY in `src/firebase.js`
+- **Firebase:** egmondbelegung, europe-west3, Auth via Firebase Auth (E-Mail/Passwort)
 
 ---
 
@@ -89,14 +89,20 @@
 ---
 
 ## Firestore & Security
-- **Rules:** ADMIN_KEY-Check für occupancy create/update, inquiry update
-- **Delete:** erlaubt wenn kein _ak im Doc (Legacy) oder _ak korrekt
-- **Inquiry create:** name≥2, email≥5, arrival/departure required, msg≤2000
+- **Auth:** Firebase Auth (E-Mail/Passwort). Accounts nur manuell in der Console, keine Selbstregistrierung. Jeder angemeldete User = Admin.
+- **Rules:** Schreiben/Löschen überall `request.auth != null`. Catch-all am Ende verweigert alles Unbekannte.
+- **Datentrennung:** `occupancy` (nur startDate/endDate) public lesbar · `bookingDetails` (note/email/phone/message, gleiche Doc-ID) nur Admin · `inquiries` create public, read/update/delete nur Admin.
+- **Inquiry create:** `hasOnly`-Feldliste, name 2–100, email 5–200, arrival/departure required, status=='neu', msg≤2000
+- **Hook-Flags:** `useOccupancy(true)` merged Gästedaten dazu, `useInquiries(true)` startet den Listener — beide nur im Admin-Bereich. Ohne Flag würde die Gästeseite an den Rules scheitern.
+
+### [2026-08-08] Sicherheits-Refactor
+Vorher schützte ein geteilter `ADMIN_KEY` die Rules — der lag im public Repo **und** im ausgelieferten JS-Bundle. Damit konnte jeder ohne Login sämtliche Belegungen und Anfragen lesen, ändern und löschen; Gästedaten (Name, E-Mail, Telefon) waren öffentlich abrufbar. Auslöser war eine verschwundene Belegung (01.–12.05.2026), deren Anfrage noch auf `gebucht` stand. Vergangene Buchungen inkl. Osterferien nicht wiederherstellbar (kein PITR, keine Backups). Datenabzug vom 08.08.2026 liegt im Vault: `00-Inbox/Egmond-Buchungen-Export-2026-08-08.md`.
 
 ---
 
 ## ⚠️ Keep in Sync
-- `src/firebase.js` ↔ `firestore.rules` (ADMIN_KEY muss identisch sein)
+- `InquiryForm.jsx` Feldliste ↔ `firestore.rules` (`hasOnly` beim inquiry-create — neues Formularfeld ohne Rules-Update wird abgelehnt)
+- `useOccupancy.js` `DETAIL_FIELDS` ↔ `bookingDetails`-Schema ↔ `scripts/migrate-booking-details.js`
 - `src/data/holidays.js` ↔ Schulministerium NRW (jährlich prüfen)
 - `GasteInfoModal.jsx` ↔ `InfoPage.jsx` (gleicher Inhalt – bei Änderung beide updaten!)
 
